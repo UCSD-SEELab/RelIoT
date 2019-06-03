@@ -26,7 +26,6 @@
 #include <iterator>
 #include <string>
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream> //istringstream
