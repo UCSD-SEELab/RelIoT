@@ -96,11 +96,24 @@ public:
                        std::string n8 = "", const AttributeValue &v8 = EmptyAttributeValue (),
                        std::string n9 = "", const AttributeValue &v9 = EmptyAttributeValue ());
 
+  void SetReliabilityModel (std::string type,
+                       std::string n1 = "", const AttributeValue &v1 = EmptyAttributeValue (),
+                       std::string n2 = "", const AttributeValue &v2 = EmptyAttributeValue (),
+                       std::string n3 = "", const AttributeValue &v3 = EmptyAttributeValue (),
+                       std::string n4 = "", const AttributeValue &v4 = EmptyAttributeValue (),
+                       std::string n5 = "", const AttributeValue &v5 = EmptyAttributeValue (),
+                       std::string n6 = "", const AttributeValue &v6 = EmptyAttributeValue (),
+                       std::string n7 = "", const AttributeValue &v7 = EmptyAttributeValue (),
+                       std::string n8 = "", const AttributeValue &v8 = EmptyAttributeValue (),
+                       std::string n9 = "", const AttributeValue &v9 = EmptyAttributeValue ());
+
   void SetApplication(std::string n0, const DoubleValue &v0);
+  
 private:
   ObjectFactory m_power; //!< Object factory to create power model objects
   ObjectFactory m_performance; //!< Object factory to create performance model objects
   ObjectFactory m_temperature; //!< Object factory to create temperature model objects
+  ObjectFactory m_reliability; //!< Object factory to create reliability model objects
   std::string m_appname;
   double m_datasize;
   // Disable implicit constructors

@@ -22,7 +22,7 @@
 #include "ns3/nstime.h"
 #include "ns3/event-id.h"
 #include "ns3/traced-value.h"
-//#include "ns3/reliability-model.h"
+#include "ns3/reliability-model.h"
 #include "ns3/temperature-model.h"
 
 namespace ns3 {
@@ -40,7 +40,7 @@ public:
    *
    * Registers the Reliability Model to Temperature Model.
    */
-  //virtual void RegisterReliabilityModel (Ptr<ReliabilityModel> reliabilityModel);
+  virtual void RegisterReliabilityModel (Ptr<ReliabilityModel> reliabilityModel);
 
 
   // Setter & getters.
@@ -71,7 +71,7 @@ private:
 
 private:
 
-  //Ptr<ReliabilityModel> m_reliabilityModel;
+  Ptr<ReliabilityModel> m_reliabilityModel;
   TracedValue<double> m_temperatureCPU;
   Time m_lastUpdateTime;          // time stamp of previous temperature update
   double m_Tenv;

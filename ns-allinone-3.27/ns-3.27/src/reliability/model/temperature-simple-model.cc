@@ -79,7 +79,7 @@ TemperatureSimpleModel::TemperatureSimpleModel ()
 {
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
-  //m_reliabilityModel = NULL;      // ReliabilityModel
+  m_reliabilityModel = NULL;      // ReliabilityModel
 }
 
 TemperatureSimpleModel::~TemperatureSimpleModel ()
@@ -87,11 +87,11 @@ TemperatureSimpleModel::~TemperatureSimpleModel ()
   NS_LOG_FUNCTION (this);
 }
 
-// void
-// TemperatureSimpleModel::RegisterReliabilityModel (Ptr<ReliabilityModel> reliabilityModel)
-// {
-//   m_reliabilityModel = reliabilityModel;
-// }
+void
+TemperatureSimpleModel::RegisterReliabilityModel (Ptr<ReliabilityModel> reliabilityModel)
+{
+  m_reliabilityModel = reliabilityModel;
+}
 
 double
 TemperatureSimpleModel::GetTemperature (void) const
@@ -177,7 +177,7 @@ TemperatureSimpleModel::UpdateTemperature (double cpupower)
   NS_LOG_FUNCTION (this << m_temperatureCPU);
   NS_LOG_DEBUG ("TemperatureSimpleModel:Updating temperature" << " at time = " << Simulator::Now ());
   m_temperatureCPU =  m_A*m_Tenv + m_B*m_temperatureCPU + m_C*cpupower + m_D;
-  //m_reliabilityModel->UpdateReliability (cpupower, m_temperatureCPU);
+  m_reliabilityModel->UpdateReliability (cpupower, m_temperatureCPU);
 
 }
 

@@ -22,6 +22,7 @@
 #include "ns3/ptr.h"
 #include "ns3/type-id.h"
 #include "ns3/node.h"
+#include "ns3/reliability-model.h"
 
 namespace ns3 {
 
@@ -33,6 +34,13 @@ public:
   TemperatureModel () ;
   virtual ~TemperatureModel ();
 
+
+  /**
+   * \param  Pointer to reliability object attached to the device.
+   *
+   * Registers the Reliability Model to Temperature Model.
+   */
+  virtual void RegisterReliabilityModel (Ptr<ReliabilityModel> reliabilityModel) = 0;
 
 
   /**

@@ -30,6 +30,7 @@ ReliabilityHelper::ReliabilityHelper (void)
   m_power.SetTypeId ("ns3::PowerLinearModel");
   m_performance.SetTypeId ("ns3::PerformanceSimpleModel");
   m_temperature.SetTypeId ("ns3::TemperatureModel");
+  m_reliability.SetTypeId ("ns3::ReliabilityTDDBModel");
   m_appname = "LinearRegression";
   m_datasize = 1000;
 }
@@ -111,6 +112,30 @@ ReliabilityHelper::SetTemperatureModel (std::string type,
   m_temperature.Set (n9, v9);
 }
 
+void 
+ReliabilityHelper::SetReliabilityModel (std::string type,
+                                  std::string n1, const AttributeValue &v1,
+                                  std::string n2, const AttributeValue &v2,
+                                  std::string n3, const AttributeValue &v3,
+                                  std::string n4, const AttributeValue &v4,
+                                  std::string n5, const AttributeValue &v5,
+                                  std::string n6, const AttributeValue &v6,
+                                  std::string n7, const AttributeValue &v7,
+                                  std::string n8, const AttributeValue &v8,
+                                  std::string n9, const AttributeValue &v9)
+{
+  m_reliability.SetTypeId (type);
+  m_reliability.Set (n1, v1);
+  m_reliability.Set (n2, v2);
+  m_reliability.Set (n3, v3);
+  m_reliability.Set (n4, v4);
+  m_reliability.Set (n5, v5);
+  m_reliability.Set (n6, v6);
+  m_reliability.Set (n7, v7);
+  m_reliability.Set (n8, v8);
+  m_reliability.Set (n9, v9);
+}
+
 void
 ReliabilityHelper::SetApplication(std::string n0, const DoubleValue &v0)
 {
@@ -161,6 +186,20 @@ ReliabilityHelper::Install (Ptr<Node> node)
       object->AggregateObject (temperaturemodel);
     }
 
+  Ptr<ReliabilityModel> reliabilitymodel = object->GetObject<ReliabilityModel> ();
+  if (reliabilitymodel == 0)
+    {
+      reliabilitymodel = m_reliability.Create ()->GetObject<ReliabilityModel> ();
+      if (reliabilitymodel == 0)
+        {
+          NS_FATAL_ERROR ("The requested power model is not a valid reliability model: \""<< 
+                          m_reliability.GetTypeId ().GetName ()<<"\"");
+        }
+      NS_LOG_DEBUG ("node="<<object<<", mob="<<reliabilitymodel);
+      object->AggregateObject (reliabilitymodel);
+    }
+
+    temperaturemodel->RegisterReliabilityModel(reliabilitymodel);
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);
     powermodel->SetApplication(m_appname,m_datasize);

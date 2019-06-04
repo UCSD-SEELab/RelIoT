@@ -15,6 +15,8 @@ def build(bld):
         'model/temperature-simple-model.cc',      
         'model/performance-model.cc',
         'model/performance-simple-model.cc',
+        'model/reliability-model.cc',
+        'model/reliability-tddb-model.cc',
         'helper/reliability-helper.cc',
         ]
 
@@ -32,6 +34,8 @@ def build(bld):
         'model/temperature-simple-model.h',
         'model/performance-model.h',
         'model/performance-simple-model.h',
+        'model/reliability-model.h',
+        'model/reliability-tddb-model.h',
         'helper/reliability-helper.h',
         ]
 
