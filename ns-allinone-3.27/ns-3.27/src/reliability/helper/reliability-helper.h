@@ -56,12 +56,18 @@ public:
   virtual ~ReliabilityHelper (void);
 
   /**
-   * \brief Install the reliability stack(power,performance,temperature,reliability) in the nodes.
+   * \brief Install the reliability stack(power,performance,temperature,reliability) to a node.
    * \param node a node
    * \returns .
    */
   void Install (Ptr<Node> node);
 
+  /**
+   * \brief Install the reliability stack(power,performance,temperature,reliability) in the nodes.
+   * \param container a NodeContainer
+   * \returns .
+   */
+  void Install (NodeContainer c);
   
   void SetPowerModel (std::string type,
                        std::string n1 = "", const AttributeValue &v1 = EmptyAttributeValue (),
