@@ -207,7 +207,7 @@ ReliabilityHelper::Install (Ptr<Node> node)
 }
 
 void 
-ReliabilityHelper::Install (NodeContainer c) const
+ReliabilityHelper::Install (NodeContainer c)
 {
   for (NodeContainer::Iterator i = c.Begin (); i != c.End (); ++i)
     {
