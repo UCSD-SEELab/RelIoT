@@ -120,8 +120,8 @@ private:
   ObjectFactory m_performance; //!< Object factory to create performance model objects
   ObjectFactory m_temperature; //!< Object factory to create temperature model objects
   ObjectFactory m_reliability; //!< Object factory to create reliability model objects
-  std::string m_appname;
-  double m_datasize;
+  std::string m_appName;
+  double m_dataSize;
   // Disable implicit constructors
   /**
    * \brief Copy constructor - defined and not implemented.

@@ -27,12 +27,12 @@ NS_LOG_COMPONENT_DEFINE ("ReliabilityHelper");
 
 ReliabilityHelper::ReliabilityHelper (void)
 {
-  m_power.SetTypeId ("ns3::PowerLinearModel");
+  m_power.SetTypeId ("ns3::AppPowerModel");
   m_performance.SetTypeId ("ns3::PerformanceSimpleModel");
   m_temperature.SetTypeId ("ns3::TemperatureModel");
   m_reliability.SetTypeId ("ns3::ReliabilityTDDBModel");
-  m_appname = "LinearRegression";
-  m_datasize = 1000;
+  m_appName = "LinearRegression";
+  m_dataSize = 100;
 }
 
 ReliabilityHelper::~ReliabilityHelper (void)
@@ -139,8 +139,8 @@ ReliabilityHelper::SetReliabilityModel (std::string type,
 void
 ReliabilityHelper::SetApplication(std::string n0, const DoubleValue &v0)
 {
-  m_appname = n0;
-  m_datasize = v0.Get();
+  m_appName = n0;
+  m_dataSize = v0.Get();
 }
 void
 ReliabilityHelper::Install (Ptr<Node> node)
@@ -202,7 +202,7 @@ ReliabilityHelper::Install (Ptr<Node> node)
     temperaturemodel->RegisterReliabilityModel(reliabilitymodel);
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);
-    powermodel->SetApplication(m_appname,m_datasize);
+    powermodel->SetApplication(m_appName,m_dataSize);
     
 }
 
