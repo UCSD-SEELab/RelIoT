@@ -113,7 +113,7 @@ PrintInfo (Ptr<Node> node)
 {
 
   std::cout<<"At time "<< Simulator::Now().GetSeconds()<<", NodeId = "<<node->GetId();
-  std::cout << " CPU Power = " << node->GetObject<PowerLinearModel>()->GetPower();
+  std::cout << " CPU Power = " << node->GetObject<PowerModel>()->GetPower();
   std::cout << " Temperature = " << node->GetObject<TemperatureModel>()->GetTemperature()<<std::endl;
   std::cout << " Reliability = " << node->GetObject<ReliabilityModel>()->GetReliability()<<std::endl;
 
@@ -133,7 +133,6 @@ main (int argc, char *argv[])
   LogComponentEnable ("TemperatureSimpleModel", LOG_LEVEL_DEBUG);
   LogComponentEnable ("ReliabilityTDDBModel", LOG_LEVEL_DEBUG);
    */
-
   std::string phyMode ("DsssRate1Mbps");
   double Prss = -80;            // dBm
   uint32_t PpacketSize = 200;   // bytes
@@ -237,15 +236,15 @@ main (int argc, char *argv[])
   EnergySourceContainer source1 = basicSourceHelper.Install (node1);
   /* reliability stack */
   ReliabilityHelper reliabilityHelper;
-  reliabilityHelper.SetPowerModel("ns3::PowerLinearModel");
+  reliabilityHelper.SetPowerModel("ns3::AppPowerModel");
   reliabilityHelper.SetPerformanceModel("ns3::PerformanceSimpleModel");
   reliabilityHelper.SetTemperatureModel("ns3::TemperatureSimpleModel");
   reliabilityHelper.SetReliabilityModel("ns3::ReliabilityTDDBModel");
   reliabilityHelper.SetApplication("LinearRegression",100);
   reliabilityHelper.Install(node1);
   /* cpu energy model */
-  CpuEnergyModelHelper cpuEnergyHelper;
-  cpuEnergyHelper.Install(device1, source1);
+   CpuEnergyModelHelper cpuEnergyHelper;
+   cpuEnergyHelper.Install(device1, source1);
   /***************************************************************************/
 
 
