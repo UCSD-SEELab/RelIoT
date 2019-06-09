@@ -76,7 +76,6 @@ public:
   virtual int GetState (void) const;
   virtual void SetState (int state);
   virtual void SetApplication(std::string appname, const DoubleValue &v0);
-  
   /**
    * \returns Current power.
    */

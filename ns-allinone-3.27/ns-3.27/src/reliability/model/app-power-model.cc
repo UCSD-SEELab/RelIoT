@@ -71,7 +71,7 @@ AppPowerModel::GetTypeId (void)
                    MakeDoubleChecker<double> ())
     .AddAttribute ("AppName",
                    "Application name",
-                   StringValue ("LinearRegression"),    // default
+                   StringValue ("AdaBoost"),    // default
                    MakeStringAccessor (&AppPowerModel::SetAppName,
                                        &AppPowerModel::GetAppName),
                    MakeStringChecker())

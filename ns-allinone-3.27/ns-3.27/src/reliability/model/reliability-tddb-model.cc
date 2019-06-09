@@ -66,11 +66,19 @@ ReliabilityTDDBModel::ReliabilityTDDBModel ()
 {
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
+  m_reliabilityUpdateInterval = Seconds(600);
 }
 
 ReliabilityTDDBModel::~ReliabilityTDDBModel ()
 {
   NS_LOG_FUNCTION (this);
+}
+
+
+void
+ReliabilityTDDBModel::RegisterTemperatureModel (Ptr<TemperatureModel> temperatureModel)
+{
+  m_temperatureModel = temperatureModel;
 }
 
 void
@@ -123,29 +131,30 @@ ReliabilityTDDBModel::GetReliability (void) const
 }
 
 void
-ReliabilityTDDBModel::UpdateReliability (double cpupower, double temperature)
+ReliabilityTDDBModel::UpdateReliability ()
 {
   NS_LOG_FUNCTION (this << m_reliability << Simulator::Now ().GetSeconds ());
-
+  double temperature = m_temperatureModel->GetAvgTemperature();
 
   Time duration = Simulator::Now () - m_lastUpdateTime;
   NS_ASSERT (duration.GetNanoSeconds () >= 0); // check if duration is valid
 
-  float offset = 0;
-  float multtemp = 0.001;
-  float multvolt = 0.1;
-  float volt = 1;
+  double offset = 0;
+  double multtemp = 0.001;
+  double multvolt = 0.1;
+  double volt = 1;
 
-  float time_max_years = 5;
-  float shape_mod_parameter = offset + multtemp*temperature + multvolt*volt;
-  float time_conversion = time_max_years/1000;
-  float time_current_scaled = Simulator::Now ().GetSeconds () * time_conversion;
-  float time_next_scaled = (Simulator::Now ().GetSeconds () + 1) * time_conversion;
-  float damage_current = std::exp(-m_area * time_current_scaled * shape_mod_parameter) - std::exp(-m_area * time_next_scaled * shape_mod_parameter);
+  double time_max_years = 5;
+  double shape_mod_parameter = offset + multtemp*temperature + multvolt*volt;
+  double time_conversion = time_max_years/1000;
+  double time_current_scaled = Simulator::Now ().GetSeconds () * time_conversion;
+  double time_next_scaled = (Simulator::Now ().GetSeconds () + 1) * time_conversion;
+  double damage_current = std::exp(-m_area * time_current_scaled * shape_mod_parameter) - std::exp(-m_area * time_next_scaled * shape_mod_parameter);
   m_reliability = m_reliability - 0.1*damage_current;
 
   // update last update time stamp
   m_lastUpdateTime = Simulator::Now ();
+  m_reliabilityUpdateEvent = Simulator::Schedule (m_reliabilityUpdateInterval,&ReliabilityModel::UpdateReliability,this);
 
 }
 

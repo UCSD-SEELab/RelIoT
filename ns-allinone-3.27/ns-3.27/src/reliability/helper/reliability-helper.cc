@@ -31,8 +31,6 @@ ReliabilityHelper::ReliabilityHelper (void)
   m_performance.SetTypeId ("ns3::PerformanceSimpleModel");
   m_temperature.SetTypeId ("ns3::TemperatureModel");
   m_reliability.SetTypeId ("ns3::ReliabilityTDDBModel");
-  m_appName = "LinearRegression";
-  m_dataSize = 100;
 }
 
 ReliabilityHelper::~ReliabilityHelper (void)
@@ -199,11 +197,12 @@ ReliabilityHelper::Install (Ptr<Node> node)
       object->AggregateObject (reliabilitymodel);
     }
 
-    temperaturemodel->RegisterReliabilityModel(reliabilitymodel);
+    reliabilitymodel->RegisterTemperatureModel(temperaturemodel);
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);
     powermodel->SetApplication(m_appName,m_dataSize);
-    
+    // powermodel->SetAppName(m_appName);
+    // powermodel->SetDataSize(m_dataSize);
 }
 
 void 

@@ -23,6 +23,8 @@
 #include "ns3/event-id.h"
 #include "ns3/traced-value.h"
 #include "ns3/reliability-model.h"
+#include "ns3/temperature-model.h"
+
 
 namespace ns3 {
 
@@ -33,6 +35,15 @@ public:
   static TypeId GetTypeId (void);
   ReliabilityTDDBModel ();
   virtual ~ReliabilityTDDBModel ();
+
+
+  /**
+   * \param  Pointer to temperature object attached to the device.
+   *
+   * Registers the Temperature Model to Power Model.
+   */
+  virtual void RegisterTemperatureModel (Ptr<TemperatureModel> temperatureModel);
+
 
   // Setter & getters for state power consumption.
   virtual double GetA (void) const;
@@ -54,7 +65,7 @@ public:
    *
    * Updates reliability.
    */
-  virtual void UpdateReliability (double cpupower, double temperature);
+  virtual void UpdateReliability ();
 
 private:
   virtual void DoDispose (void);
@@ -65,9 +76,12 @@ private:
   double m_B;
   double m_area;
 
+  Ptr<TemperatureModel> m_temperatureModel;
+
   // This variable keeps track of the reliability of this model.
   TracedValue<double> m_reliability;
-
+  EventId m_reliabilityUpdateEvent;            // energy update event
+  Time m_reliabilityUpdateInterval;
   // State variables.
   Time m_lastUpdateTime;          // time stamp of previous energy update
 

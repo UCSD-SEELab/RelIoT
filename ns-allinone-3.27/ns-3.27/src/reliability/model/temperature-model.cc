@@ -54,6 +54,12 @@ TemperatureModel::GetTemperature (void) const
   return 0.0;
 }
 
+double
+TemperatureModel::GetAvgTemperature (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return 0.0;
+}
 
 void
 TemperatureModel::UpdateTemperature (double cpupower)

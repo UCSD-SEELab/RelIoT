@@ -70,6 +70,8 @@ public:
   virtual void RegisterPerformanceModel (Ptr<PerformanceModel> performanceModel) = 0;
 
   virtual void SetApplication(std::string n0, const DoubleValue &v0) = 0;
+  //virtual void SetAppName (const std::string &appname) = 0;  
+  //virtual void SetDataSize (double datasize) = 0;
 
   /**
    * \returns Current Power.

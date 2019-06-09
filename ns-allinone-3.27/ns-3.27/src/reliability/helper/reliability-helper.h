@@ -26,6 +26,7 @@
 #include <ns3/power-model.h>
 #include <ns3/temperature-model.h>
 #include <ns3/performance-model.h>
+#include <ns3/reliability-model.h>
 
 
 namespace ns3 {
