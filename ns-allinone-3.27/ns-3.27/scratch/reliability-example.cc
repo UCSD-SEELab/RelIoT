@@ -133,11 +133,16 @@ main (int argc, char *argv[])
   LogComponentEnable ("TemperatureSimpleModel", LOG_LEVEL_DEBUG);
   LogComponentEnable ("ReliabilityTDDBModel", LOG_LEVEL_DEBUG);
    */
+  //LogComponentEnable ("CpuEnergyModel", LOG_LEVEL_DEBUG);
+  LogComponentEnable ("AppPowerModel", LOG_LEVEL_DEBUG);
+  //LogComponentEnable ("PowerModel", LOG_LEVEL_DEBUG);
+  //LogComponentEnable ("TemperatureSimpleModel", LOG_LEVEL_DEBUG);
+
   std::string phyMode ("DsssRate1Mbps");
   double Prss = -80;            // dBm
   uint32_t PpacketSize = 200;   // bytes
   bool verbose = false;
-
+  uint32_t dataSize = 10000;
   // simulation parameters
   uint32_t numPackets = 10000;  // number of packets to send
   double interval = 1;          // seconds
@@ -236,15 +241,16 @@ main (int argc, char *argv[])
   EnergySourceContainer source1 = basicSourceHelper.Install (node1);
   /* reliability stack */
   ReliabilityHelper reliabilityHelper;
+  reliabilityHelper.SetDeviceType("RaspberryPi");
   reliabilityHelper.SetPowerModel("ns3::AppPowerModel");
   reliabilityHelper.SetPerformanceModel("ns3::PerformanceSimpleModel");
   reliabilityHelper.SetTemperatureModel("ns3::TemperatureSimpleModel");
   reliabilityHelper.SetReliabilityModel("ns3::ReliabilityTDDBModel");
-  reliabilityHelper.SetApplication("LinearRegression",100);
+  reliabilityHelper.SetApplication("LinearRegression",dataSize,PpacketSize);
   reliabilityHelper.Install(node1);
   /* cpu energy model */
    CpuEnergyModelHelper cpuEnergyHelper;
-   cpuEnergyHelper.Install(device1, source1);
+   DeviceEnergyModelContainer deviceModels = cpuEnergyHelper.Install(device1, source1);
   /***************************************************************************/
 
 
@@ -277,7 +283,7 @@ main (int argc, char *argv[])
   Simulator::Schedule (Seconds (startTime), &GenerateTraffic, source, PpacketSize,
                        networkNodes.Get (0), numPackets, interPacketInterval);
 
-  Simulator::Stop (Seconds (10.0));
+  Simulator::Stop (Seconds (100.0));
   Simulator::Run ();
   Simulator::Destroy ();
 
