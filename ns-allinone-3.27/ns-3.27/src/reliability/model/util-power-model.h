@@ -52,14 +52,14 @@ public:
    */
   virtual void RegisterPerformanceModel (Ptr<PerformanceModel> performanceModel);
   /**
-   * \brief Sets pointer to EnergySouce installed on node.
+   * \param deviceEnergyModelPtr Pointer to device energy model.
    *
-   * \param source Pointer to EnergySource installed on node.
-   *
-   * Implements DeviceEnergyModel::SetEnergySource.
+   * This function appends a device energy model to the end of a list of
+   * DeviceEnergyModelInfo structs.
    */
-  //virtual void SetEnergySource (Ptr<EnergySource> source);
+  void AppendDeviceEnergyModel (Ptr<DeviceEnergyModel> deviceEnergyModelPtr);
 
+  
   // Setter & getters.
   virtual double GetA (void) const;
   virtual void SetA (double A);
@@ -76,6 +76,8 @@ public:
   virtual int GetState (void) const;
   virtual void SetState (int state);
   virtual void SetApplication(std::string appname, const DoubleValue &v0);
+  virtual void SetDeviceType(std::string devicetype);
+
   /**
    * \returns Current power.
    */
@@ -106,11 +108,24 @@ public:
 private:
   virtual void DoDispose (void);
 
+  /**
+   * Handles the application running event. 
+   */
+  void HandleAppRunEvent (void);
+
+  /**
+   * Handles the application terminating event.
+   */
+  void HandleAppTerminateEvent (void);
+  
 private:
 
   Ptr<TemperatureModel> m_temperatureModel;
   Ptr<PerformanceModel> m_performanceModel;
-
+  /**
+   * List of device energy models installed on the same node.
+   */
+  DeviceEnergyModelContainer m_models;
   // Member variables for current draw in different radio modes.
   double m_A;
   double m_B;
@@ -121,6 +136,7 @@ private:
   int m_currentState;
   double m_util;
   double m_idlePowerW;
+  std::string m_deviceType;
   // This variable keeps track of the total energy consumed by this model.
   TracedValue<double> m_cpupower;
   // State variables.

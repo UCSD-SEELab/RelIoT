@@ -51,7 +51,7 @@ double
 TemperatureModel::GetTemperature (void) const
 {
   NS_LOG_FUNCTION (this);
-  return 0.0;
+  return 25.0;
 }
 
 double

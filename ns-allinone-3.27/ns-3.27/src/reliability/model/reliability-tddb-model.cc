@@ -66,7 +66,10 @@ ReliabilityTDDBModel::ReliabilityTDDBModel ()
 {
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
-  m_reliabilityUpdateInterval = Seconds(600);
+  m_reliabilityUpdateInterval = Seconds(10);
+  m_reliability = 1.0;
+  m_reliabilityUpdateEvent = Simulator::Schedule (m_reliabilityUpdateInterval,&ReliabilityModel::UpdateReliability,this);
+
 }
 
 ReliabilityTDDBModel::~ReliabilityTDDBModel ()

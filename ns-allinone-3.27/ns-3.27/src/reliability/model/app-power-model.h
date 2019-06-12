@@ -51,14 +51,7 @@ public:
    * Registers the Performance Model to Power Model.
    */
   virtual void RegisterPerformanceModel (Ptr<PerformanceModel> performanceModel);
-  /**
-   * \brief Sets pointer to EnergySouce installed on node.
-   *
-   * \param source Pointer to EnergySource installed on node.
-   *
-   * Implements DeviceEnergyModel::SetEnergySource.
-   */
-  //virtual void SetEnergySource (Ptr<EnergySource> source);
+
 
   // Setter & getters.
   virtual double GetA (void) const;
@@ -76,6 +69,7 @@ public:
   virtual int GetState (void) const;
   virtual void SetState (int state);
   virtual void SetApplication(std::string appname, const DoubleValue &v0);
+  virtual void SetDeviceType(std::string devicetype);
   
   /**
    * \returns Current power.
@@ -107,10 +101,21 @@ public:
 private:
   virtual void DoDispose (void);
 
+  /**
+   * Handles the application running event. 
+   */
+  void HandleAppRunEvent (void);
+
+  /**
+   * Handles the application terminating.
+   */
+  void HandleAppTerminateEvent (void);
+
 private:
 
   Ptr<TemperatureModel> m_temperatureModel;
   Ptr<PerformanceModel> m_performanceModel;
+
 
   double m_A;
   double m_B;
@@ -120,6 +125,7 @@ private:
   double m_exectime;
   int m_currentState;
   std::string m_appName;
+  std::string m_deviceType;
   double m_dataSize;
   double m_idlePowerW;
   // This variable keeps track of the total energy consumed by this model.

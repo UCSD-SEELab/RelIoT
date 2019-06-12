@@ -117,6 +117,14 @@ UtilPowerModel::RegisterPerformanceModel (Ptr<PerformanceModel> performanceModel
   m_performanceModel = performanceModel;
 }
 
+void
+UtilPowerModel::AppendDeviceEnergyModel (Ptr<DeviceEnergyModel> deviceEnergyModelPtr)
+{
+  NS_LOG_FUNCTION (this << deviceEnergyModelPtr);
+  NS_ASSERT (deviceEnergyModelPtr != NULL); // model must exist
+  m_models.Add (deviceEnergyModelPtr);
+}
+
 double
 UtilPowerModel::GetPower (void) const
 {
@@ -214,27 +222,58 @@ void
 UtilPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
 {
 
-  if(appname == "LinearRegression")
-  {m_A = 0.0;
-    m_B = 1.83*pow(10,-1);
-    m_C = (9.72)*pow(10,1);
+  if(m_deviceType == "RaspberryPi")
+  {
+    if(appname == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 1.83*pow(10,-1);
+      m_C = (9.72)*pow(10,1);
+    }
+    else if(appname == "AdaBoost")
+    {
+      m_A = 0.0;
+      m_B = 8.13*pow(10,-4);
+      m_C = (1.94)*pow(10,1);
+    }
+    else if(appname == "NeuralNetwork")
+    {
+      m_A = 0.0;
+      m_B = 8.13*pow(10,-4);
+      m_C = (1.94)*pow(10,1);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << appname);
+    }
   }
-  if(appname == "AdaBoost")
-  {m_A = 0.0;
-    m_B = 8.13*pow(10,-4);
-    m_C = (1.94)*pow(10,1);
+  else if(m_deviceType == "Arduino")
+  {
+    if(appname == "MedianFilter")
+    {
+      m_A = 0.0;
+      m_B = 8.13*pow(10,-4);
+      m_C = (1.94)*pow(10,1);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << appname);
+    }
   }
-  if(appname == "MedianFilter")
-  {m_A = 0.0;
-    m_B = 8.13*pow(10,-4);
-    m_C = (1.94)*pow(10,1);
+  else
+  {
+    NS_FATAL_ERROR ("AppPowerModel:Undefined device type: " << m_deviceType);
   }
-  if(appname == "NeuralNetwork")
-  {m_A = 0.0;
-    m_B = 8.13*pow(10,-4);
-    m_C = (1.94)*pow(10,1);
-  }
+
   m_performanceModel->SetApplication(appname,v0.Get());
+}
+
+void
+UtilPowerModel::SetDeviceType(std::string devicetype)
+{
+  m_deviceType = devicetype;
+
+  m_performanceModel->SetDeviceType(m_deviceType);
 }
 
 void
@@ -309,6 +348,18 @@ UtilPowerModel::DoDispose (void)
 
 }
 
+void
+UtilPowerModel::HandleAppRunEvent (void)
+{
+  NS_LOG_FUNCTION (this);
+  NotifyAppRun (); // notify DeviceEnergyModel objects
+}
 
+void
+UtilPowerModel::HandleAppTerminateEvent (void)
+{
+  NS_LOG_FUNCTION (this);
+  NotifyAppTerminate (); // notify DeviceEnergyModel objects
+}
 
 } // namespace ns3

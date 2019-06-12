@@ -129,11 +129,11 @@ PerformanceSimpleModel::GetC (void) const
 }
 
 void
-PerformanceSimpleModel::SetDataSize (double datasize)
+PerformanceSimpleModel::SetDataSize (const DoubleValue &v0)
 {
   NS_LOG_FUNCTION (this);
 
-  m_datasize = datasize ;
+  m_datasize = v0.Get();
 }
 
 double
@@ -144,36 +144,104 @@ PerformanceSimpleModel::GetDataSize (void) const
 }
 
 void
-PerformanceSimpleModel::SetApplication (std::string n0, const DoubleValue &v0)
+PerformanceSimpleModel::SetPacketSize (const DoubleValue &v1)
+{
+  NS_LOG_FUNCTION (this);
+  m_packetSize = v1.Get() ;
+}
+
+double
+PerformanceSimpleModel::GetPacketSize (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return m_packetSize;
+}
+
+void
+PerformanceSimpleModel::SetApplication (std::string m_appName, const DoubleValue &v0)
 {
   NS_LOG_FUNCTION (this);
   m_datasize = v0.Get() ;
-  if(n0 == "LinearRegression")
-  {m_A = 0.0;
-   m_B = 5.32*pow(10,-2);
-   m_C = 2.40*pow(10,1);
-   m_exectime = m_B*m_datasize + m_C;
+//   if(n0 == "LinearRegression")
+//   {m_A = 0.0;
+//    m_B = 5.32*pow(10,-2);
+//    m_C = 2.40*pow(10,1);
+//    m_exectime = (m_B*m_datasize)/1000 + m_C;
+//   }
+//   if(n0 == "AdaBoost")
+//   {m_A = 0.0;
+//    m_B = 2.28*pow(10,-4);
+//    m_C = (-9.38)*pow(10,-1);
+//    m_exectime = (m_B*m_datasize)/1000 + m_C;
+// }
+//   if(n0 == "MedianFilter")
+//   {m_A = 0.0;
+//    m_B = 2.28*pow(10,-4);
+//    m_C = (-9.38)*pow(10,-1);
+//    m_exectime = (m_B*m_datasize)/1000 + m_C;
+// }
+
+//   if(n0 == "NeuralNetwork")
+//   {m_A = 0.0;
+//    m_B = 2.28*pow(10,-4);
+//    m_C = (-9.38)*pow(10,-1);
+//    m_exectime = (m_B*m_datasize)/1000 + m_C;
+// }
+
+  if(m_deviceType == "RaspberryPi")
+  {
+    if(m_appName == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 5.32*pow(10,-2);
+      m_C = 2.40*pow(10,1);
+      m_exectime = (m_B*m_datasize)/1000 + m_C;
+    }
+    else if(m_appName == "AdaBoost")
+    {
+      m_A = 0.0;
+      m_B = 2.28*pow(10,-4);
+      m_C = (-9.38)*pow(10,-1);
+      m_exectime = (m_B*m_datasize)/1000 + m_C;
+    }
+    else if(m_appName == "NeuralNetwork")
+    {
+      m_A = 0.0;
+      m_B = 2.28*pow(10,-4);
+      m_C = (-9.38)*pow(10,-1);
+      m_exectime = (m_B*m_datasize)/1000 + m_C;
+    }
+    else
+    {
+      NS_FATAL_ERROR ("PerformanceSimpleModel:Undefined application for this device: " << m_appName);
+    }
   }
-  if(n0 == "AdaBoost")
-  {m_A = 0.0;
-   m_B = 2.28*pow(10,-4);
-   m_C = (-9.38)*pow(10,-1);
-   m_exectime = m_B*m_datasize + m_C;
-}
-  if(n0 == "MedianFilter")
-  {m_A = 0.0;
-   m_B = 2.28*pow(10,-4);
-   m_C = (-9.38)*pow(10,-1);
-   m_exectime = m_B*m_datasize + m_C;
+  else if(m_deviceType == "Arduino")
+  {
+    if(m_appName == "MedianFilter")
+    {
+      m_A = 0.0;
+      m_B = 2.28*pow(10,-4);
+      m_C = (-9.38)*pow(10,-1);
+      m_exectime = (m_B*m_datasize)/1000 + m_C;
+    }
+    else
+    {
+      NS_FATAL_ERROR ("PerformanceSimpleModel:Undefined application for this device: " << m_appName);
+    }
+  }
+  else
+  {
+    NS_FATAL_ERROR ("PerformanceSimpleModel:Undefined device type: " << m_deviceType);
+  }
+  
 }
 
-  if(n0 == "NeuralNetwork")
-  {m_A = 0.0;
-   m_B = 2.28*pow(10,-4);
-   m_C = (-9.38)*pow(10,-1);
-   m_exectime = m_B*m_datasize + m_C;
-}
-
+void
+PerformanceSimpleModel::SetDeviceType (std::string devicetype)
+{
+  NS_LOG_FUNCTION (this);
+  m_deviceType = devicetype;
 }
 
 void

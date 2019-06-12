@@ -80,6 +80,7 @@ TemperatureSimpleModel::TemperatureSimpleModel ()
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
   m_avgTemp = 0;
+  m_temperatureCPU = 25.0;
 }
 
 TemperatureSimpleModel::~TemperatureSimpleModel ()
