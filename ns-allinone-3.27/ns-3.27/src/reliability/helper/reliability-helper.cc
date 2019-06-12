@@ -135,11 +135,19 @@ ReliabilityHelper::SetReliabilityModel (std::string type,
 }
 
 void
-ReliabilityHelper::SetApplication(std::string n0, const DoubleValue &v0)
+ReliabilityHelper::SetApplication(std::string n0, const DoubleValue &v0,const DoubleValue &v1)
 {
   m_appName = n0;
   m_dataSize = v0.Get();
+  m_packetSize = v1.Get();
 }
+
+void
+ReliabilityHelper::SetDeviceType(std::string devicetype)
+{
+  m_deviceType = devicetype;
+}
+
 void
 ReliabilityHelper::Install (Ptr<Node> node)
 {
@@ -200,7 +208,9 @@ ReliabilityHelper::Install (Ptr<Node> node)
     reliabilitymodel->RegisterTemperatureModel(temperaturemodel);
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);
+    powermodel->SetDeviceType(m_deviceType);
     powermodel->SetApplication(m_appName,m_dataSize);
+    performancemodel->SetPacketSize(m_packetSize);
     // powermodel->SetAppName(m_appName);
     // powermodel->SetDataSize(m_dataSize);
 }

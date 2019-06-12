@@ -114,7 +114,9 @@ public:
                        std::string n8 = "", const AttributeValue &v8 = EmptyAttributeValue (),
                        std::string n9 = "", const AttributeValue &v9 = EmptyAttributeValue ());
 
-  void SetApplication(std::string n0, const DoubleValue &v0);
+  void SetApplication(std::string n0, const DoubleValue &v0, const DoubleValue &v1);
+  void SetDeviceType(std::string devicetype);
+
   
 private:
   ObjectFactory m_power; //!< Object factory to create power model objects
@@ -122,7 +124,9 @@ private:
   ObjectFactory m_temperature; //!< Object factory to create temperature model objects
   ObjectFactory m_reliability; //!< Object factory to create reliability model objects
   std::string m_appName;
+  std::string m_deviceType;
   double m_dataSize;
+  double m_packetSize;
   // Disable implicit constructors
   /**
    * \brief Copy constructor - defined and not implemented.
