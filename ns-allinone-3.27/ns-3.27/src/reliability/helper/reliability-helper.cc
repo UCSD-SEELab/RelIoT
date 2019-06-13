@@ -140,6 +140,11 @@ ReliabilityHelper::SetApplication(std::string n0, const DoubleValue &v0,const Do
   m_appName = n0;
   m_dataSize = v0.Get();
   m_packetSize = v1.Get();
+
+  if(m_dataSize<m_packetSize)
+  {
+      NS_FATAL_ERROR ("Application input data size must be greater than packet size:");
+  }
 }
 
 void
@@ -209,6 +214,7 @@ ReliabilityHelper::Install (Ptr<Node> node)
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);
     powermodel->SetDeviceType(m_deviceType);
+    temperaturemodel->SetDeviceType(m_deviceType);
     powermodel->SetApplication(m_appName,m_dataSize);
     performancemodel->SetPacketSize(m_packetSize);
     // powermodel->SetAppName(m_appName);

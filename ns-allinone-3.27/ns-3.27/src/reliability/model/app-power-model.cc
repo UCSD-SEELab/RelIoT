@@ -249,23 +249,65 @@ AppPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
   m_dataSize = v0.Get();
   if(m_deviceType == "RaspberryPi")
   {
-    if(m_appName == "LinearRegression")
+    if(m_appName == "AdaBoost")
     {
       m_A = 0.0;
       m_B = 1.83*pow(10,-1);
-      m_C = (9.72)*pow(10,1);
+      m_C = 9.72*pow(10,1);
     }
-    else if(m_appName == "AdaBoost")
+    else if(m_appName == "DecisionTree")
+    {
+      m_A = 0.0;
+      m_B = 1.40*pow(10,-2);
+      m_C = 2.03*pow(10,1);
+    }
+    else if(m_appName == "RandomForest")
+    {
+      m_A = 1.40*pow(10,-7);
+      m_B = 4.64*pow(10,-2);
+      m_C = 2.40*pow(10,1);
+    }
+    else if(m_appName == "kNN")
+    {
+      m_A = 0.0;
+      m_B = 3.30*pow(10,-2);
+      m_C = 3.04*pow(10,1);
+    }
+      else if(m_appName == "LinearSVM")
+    {
+      m_A = 1.08*pow(10,-2);
+      m_B = 1.91*pow(10,0);
+      m_C = 1.47*pow(10,1);
+    }
+    else if(m_appName == "AffinityPropagation")
+    {
+      m_A = 2.16*pow(10,0);
+      m_B = -6.15*pow(10,0);
+      m_C = 2.80*pow(10,1);
+    }
+    else if(m_appName == "Birch")
+    {
+      m_A = 3.78*pow(10,-2);
+      m_B = -4.57*pow(10,-1);
+      m_C = 2.80*pow(10,1);
+    }
+    else if(m_appName == "k-means")
+    {
+      m_A = 3.74*pow(10,-2);
+      m_B = -4.75*pow(10,-1);
+      m_C = 2.77*pow(10,1);
+    }
+    else if(m_appName == "BayesianRegression")
+    {
+      m_A = 5.01*pow(10,-9);
+      m_B = 5.44*pow(10,-5);
+      m_C = 2.63*pow(10,1);
+    }
+    else if(m_appName == "LinearRegression")
     {
       m_A = 0.0;
       m_B = 8.13*pow(10,-4);
-      m_C = (1.94)*pow(10,1);
-    }
-    else if(m_appName == "NeuralNetwork")
-    {
-      m_A = 0.0;
-      m_B = 8.13*pow(10,-4);
-      m_C = (1.94)*pow(10,1);
+      m_C = 1.94*pow(10,1);
     }
     else
     {
@@ -277,8 +319,8 @@ AppPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
     if(m_appName == "MedianFilter")
     {
       m_A = 0.0;
-      m_B = 8.13*pow(10,-4);
-      m_C = (1.94)*pow(10,1);
+      m_B = 0.5*pow(10,-1);
+      m_C = 0.35*pow(10,0);
     }
     else
     {
@@ -297,6 +339,20 @@ void
 AppPowerModel::SetDeviceType(std::string devicetype)
 {
   m_deviceType = devicetype;
+  if(m_deviceType == "RaspberryPi")
+  {
+    m_idlePowerW = 2.8;
+    m_cpupower = m_idlePowerW;
+  }
+  else if (m_deviceType == "Arduino")
+  {
+    m_idlePowerW = 0.4;
+    m_cpupower = m_idlePowerW;
+  }
+  else
+  {
+    NS_FATAL_ERROR ("TemperatureSimpleModel:Undefined device type: " << m_deviceType);
+  }
 
   m_performanceModel->SetDeviceType(m_deviceType);
 }
@@ -358,10 +414,11 @@ AppPowerModel::UpdatePower ()
     }
   //m_powerUpdateEvent.Cancel ();
   if(m_currentState == 1){
-    m_energy = m_B*m_dataSize/1000 + m_C;
+    m_energy = m_A*pow(m_dataSize,2) + m_B*m_dataSize/1000 + m_C;
     m_cpupower = m_energy/m_exectime;
   }
-  else{
+  else
+  {
      m_cpupower = m_idlePowerW;
   }
   // update last update time stamp

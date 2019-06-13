@@ -224,19 +224,61 @@ UtilPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
 
   if(m_deviceType == "RaspberryPi")
   {
-    if(appname == "LinearRegression")
+    if(appname == "AdaBoost")
     {
       m_A = 0.0;
       m_B = 1.83*pow(10,-1);
-      m_C = (9.72)*pow(10,1);
+      m_C = 9.72*pow(10,1);
     }
-    else if(appname == "AdaBoost")
+    else if(appname == "DecisionTree")
     {
       m_A = 0.0;
-      m_B = 8.13*pow(10,-4);
-      m_C = (1.94)*pow(10,1);
+      m_B = 1.40*pow(10,-2);
+      m_C = 2.03*pow(10,1);
     }
-    else if(appname == "NeuralNetwork")
+    else if(appname == "RandomForest")
+    {
+      m_A = 1.40*pow(10,-7);
+      m_B = 4.64*pow(10,-2);
+      m_C = 2.40*pow(10,1);
+    }
+    else if(appname == "kNN")
+    {
+      m_A = 0.0;
+      m_B = 3.30*pow(10,-2);
+      m_C = 3.04*pow(10,1);
+    }
+      else if(appname == "LinearSVM")
+    {
+      m_A = 1.08*pow(10,-2);
+      m_B = 1.91*pow(10,0);
+      m_C = 1.47*pow(10,1);
+    }
+    else if(appname == "AffinityPropagation")
+    {
+      m_A = 2.16*pow(10,0);
+      m_B = -6.15*pow(10,0);
+      m_C = 2.80*pow(10,1);
+    }
+    else if(appname == "Birch")
+    {
+      m_A = 3.78*pow(10,-2);
+      m_B = -4.57*pow(10,-1);
+      m_C = 2.80*pow(10,1);
+    }
+    else if(appname == "k-means")
+    {
+      m_A = 3.74*pow(10,-2);
+      m_B = -4.75*pow(10,-1);
+      m_C = 2.77*pow(10,1);
+    }
+    else if(appname == "BayesianRegression")
+    {
+      m_A = 5.01*pow(10,-9);
+      m_B = 5.44*pow(10,-5);
+      m_C = 2.63*pow(10,1);
+    }
+    else if(appname == "LinearRegression")
     {
       m_A = 0.0;
       m_B = 8.13*pow(10,-4);

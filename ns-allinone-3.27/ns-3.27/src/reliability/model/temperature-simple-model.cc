@@ -181,6 +181,29 @@ TemperatureSimpleModel::SetHorizon (Time horizon)
   m_avgHorizon = horizon;
 }
 
+void
+TemperatureSimpleModel::SetDeviceType(std::string devicetype)
+{
+  m_deviceType = devicetype;
+  if(m_deviceType == "RaspberryPi")
+  {
+  m_A = 0.14434;
+  m_B = 0.98885;
+  m_C = 0.04894698;
+  m_D = -3.14462264;
+  }
+  else if (m_deviceType == "Arduino")
+  {
+  m_A = 0.763094;
+  m_B = 0.010693;
+  m_C = -0.000679;
+  m_D = 9.795560;
+  }
+  else
+  {
+    NS_FATAL_ERROR ("TemperatureSimpleModel:Undefined device type: " << m_deviceType);
+  }
+}
 
 void
 TemperatureSimpleModel::UpdateTemperature (double cpupower)

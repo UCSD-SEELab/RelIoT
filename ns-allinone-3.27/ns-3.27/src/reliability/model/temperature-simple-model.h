@@ -48,6 +48,7 @@ public:
   virtual double GetTenv (void) const;
   virtual void SetTenv (double Tenv);
   virtual void SetHorizon (Time horizon);
+  virtual void SetDeviceType(std::string devicetype);
 
   /**
    * \brief Updates the temperature.
@@ -79,6 +80,7 @@ private:
   double m_D;
   Time m_avgHorizon;
   double m_avgTemp;
+  std::string m_deviceType;
 };
 
 } // namespace ns3
