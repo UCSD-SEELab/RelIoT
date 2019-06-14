@@ -148,7 +148,7 @@ CpuEnergyModelHelper::DoInstall (Ptr<NetDevice> device,
   model->SetPowerModel (m_powerModel2);
   model->SetPerformanceModel (m_performanceModel2);
   m_powerModel2->AppendDeviceEnergyModel (model);
-
+  //node->AggregateObject (model);
   return model;
 }
 

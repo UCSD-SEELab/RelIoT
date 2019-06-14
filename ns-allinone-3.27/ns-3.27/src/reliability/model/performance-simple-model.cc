@@ -71,6 +71,7 @@ PerformanceSimpleModel::PerformanceSimpleModel ()
 {
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
+  m_throughput = 0.0;
 }
 
 PerformanceSimpleModel::~PerformanceSimpleModel ()
@@ -85,6 +86,19 @@ PerformanceSimpleModel::GetExecTime (void) const
   return m_exectime;
 }
 
+double
+PerformanceSimpleModel::GetThroughput (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return m_throughput;
+}
+
+void
+PerformanceSimpleModel::SetThroughput (double throughput)
+{
+  NS_LOG_FUNCTION (this);
+  m_throughput = throughput;
+}
 
 void
 PerformanceSimpleModel::SetA (double A)
@@ -234,6 +248,83 @@ PerformanceSimpleModel::SetApplication (std::string m_appName, const DoubleValue
       m_A = 0.0;
       m_B = 2.28*pow(10,-4);
       m_C = -9.38*pow(10,-1);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
+    }
+  }
+  else if(m_deviceType == "Server")
+  {
+    if(m_appName == "AdaBoost")
+    {
+      m_A = 0.0;
+      m_B = 4.60*pow(10,-3);
+      m_C = 1.58*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "DecisionTree")
+    {
+      m_A = 0.0;
+      m_B = 4.21*pow(10,-4);
+      m_C = -3.76*pow(10,-1);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "RandomForest")
+    {
+      m_A = 1.96*pow(10,-8);
+      m_B = 1.15*pow(10,-3);
+      m_C = -1.19*pow(10,-1);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "kNN")
+    {
+      m_A = 0.0;
+      m_B = 9.21*pow(10,-4);
+      m_C = -3.19*pow(10,-1);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+      else if(m_appName == "LinearSVM")
+    {
+      m_A = 2.01*pow(10,-4);
+      m_B = 2.95*pow(10,-2);
+      m_C = -5.44*pow(10,-2);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "AffinityPropagation")
+    {
+      m_A = 8.27*pow(10,-2);
+      m_B = 2.69*pow(10,-1);
+      m_C = -1.40*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "Birch")
+    {
+      m_A = 1.13*pow(10,-3);
+      m_B = -4.84*pow(10,-3);
+      m_C = 9.26*pow(10,-2);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "k-means")
+    {
+      m_A = 1.40*pow(10,-3);
+      m_B = -4.86*pow(10,-2);
+      m_C = 7.50*pow(10,-1);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "BayesianRegression")
+    {
+      m_A = 1.33*pow(10,-8);
+      m_B = -2.69*pow(10,-4);
+      m_C = 1.38*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+    }
+    else if(m_appName == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 9.32*pow(10,-4);
+      m_C = -7.06*pow(10,0);
       m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
     }
     else

@@ -50,6 +50,14 @@ PerformanceModel::GetExecTime (void) const
   NS_LOG_FUNCTION (this);
   return 0.0;
 }
+
+double
+PerformanceModel::GetThroughput (void) const
+{
+  NS_LOG_FUNCTION (this);
+  return 0.0;
+}
+
 double
 PerformanceModel::GetPacketSize (void) const
 {

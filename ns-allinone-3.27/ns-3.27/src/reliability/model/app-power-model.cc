@@ -314,6 +314,73 @@ AppPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
       NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
     }
   }
+  else if(m_deviceType == "Server")
+  {
+    if(m_appName == "AdaBoost")
+    {
+      m_A = 0.0;
+      m_B = 8.54*pow(10,-1);
+      m_C = 6.67*pow(10,2);
+    }
+    else if(m_appName == "DecisionTree")
+    {
+      m_A = 0.0;
+      m_B = 7.76*pow(10,-2);
+      m_C = 3.41*pow(10,2);
+    }
+    else if(m_appName == "RandomForest")
+    {
+      m_A = 4.13*pow(10,-6);
+      m_B = 2.04*pow(10,-1);
+      m_C = 3.94*pow(10,2);
+    }
+    else if(m_appName == "kNN")
+    {
+      m_A = 0.0;
+      m_B = 1.64*pow(10,-1);
+      m_C = 4.97*pow(10,2);
+    }
+      else if(m_appName == "LinearSVM")
+    {
+      m_A = 3.66*pow(10,-2);
+      m_B = 5.75*pow(10,0);
+      m_C = 3.87*pow(10,2);
+    }
+    else if(m_appName == "AffinityPropagation")
+    {
+      m_A = 1.59*pow(10,1);
+      m_B = 3.33*pow(10,1);
+      m_C = 2.04*pow(10,2);
+    }
+    else if(m_appName == "Birch")
+    {
+      m_A = 2.00*pow(10,-1);
+      m_B = -8.36*pow(10,-1);
+      m_C = 4.11*pow(10,2);
+    }
+    else if(m_appName == "k-means")
+    {
+      m_A = 2.47*pow(10,-1);
+      m_B = -8.38*pow(10,0);
+      m_C = 5.12*pow(10,2);
+    }
+    else if(m_appName == "BayesianRegression")
+    {
+      m_A = 2.55*pow(10,-6);
+      m_B = -4.49*pow(10,-2);
+      m_C = 8.04*pow(10,2);
+    }
+    else if(m_appName == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 1.94*pow(10,-1);
+      m_C = -9.51*pow(10,2);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
+    }
+  }
   else if(m_deviceType == "Arduino")
   {
     if(m_appName == "MedianFilter")
@@ -347,6 +414,11 @@ AppPowerModel::SetDeviceType(std::string devicetype)
   else if (m_deviceType == "Arduino")
   {
     m_idlePowerW = 0.4;
+    m_cpupower = m_idlePowerW;
+  }
+  else if (m_deviceType == "Server")
+  {
+    m_idlePowerW = 100;
     m_cpupower = m_idlePowerW;
   }
   else
@@ -387,6 +459,7 @@ AppPowerModel::RunApp()
   m_powerUpdateEvent = Simulator::Schedule (Seconds(0.0),&AppPowerModel::UpdatePower,this);
   m_exectime = m_performanceModel->GetExecTime();
   Simulator::Schedule (Seconds(m_exectime),&AppPowerModel::TerminateApp,this);
+  m_performanceModel->SetThroughput(m_dataSize/m_exectime);
   HandleAppRunEvent();
   NS_LOG_DEBUG ("AppPowerModel:Application scheduled successfully!" << " at time = " << Simulator::Now ());
   NS_LOG_DEBUG ("AppPowerModel:Application will be terminated in " << m_exectime << " seconds ");
@@ -398,6 +471,7 @@ AppPowerModel::TerminateApp()
  //m_powerUpdateEvent.Cancel ();
  m_cpupower = m_idlePowerW;
  m_currentState = 0;
+ m_performanceModel->SetThroughput(0);
  HandleAppTerminateEvent();
    NS_LOG_DEBUG ("AppPowerModel:Application terminated successfully!" << " at time = " << Simulator::Now ());
 }

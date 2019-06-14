@@ -80,6 +80,12 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("WifiSimpleAdhocGrid");
 
+double totalPower = 0;
+double totalTemperature = 0;
+double averagePower = 0;
+double averageTemperature = 0;
+double avgcount = 0;
+
 std::string fileNameWithNoExtension1 = "avgpower_plot";
 std::string fileNameWithNoExtension2 = "avgtemperature_plot";
 std::string graphicsFileName1        = fileNameWithNoExtension1 + ".png";
@@ -166,6 +172,10 @@ PrintInfo (NodeContainer nodes)
   }
   avg_power = sum_power/count;
   avg_temp = sum_temp/count;
+  totalPower += avg_power;
+  totalTemperature += avg_temp;
+  avgcount += 1;
+
   dataset1.Add(Simulator::Now ().GetSeconds (), avg_power);
   dataset2.Add(Simulator::Now ().GetSeconds (), avg_temp);
 
@@ -173,6 +183,16 @@ PrintInfo (NodeContainer nodes)
   {
     Simulator::Schedule (Seconds (0.5),&PrintInfo,nodes);
   }
+}
+
+void
+PrintAverages(void)
+{
+  
+  averagePower = totalPower/avgcount;
+  averageTemperature = totalTemperature/avgcount;
+  std::cout << "Average power = " << averagePower << std::endl;
+  std::cout << "Average temperature = " << averageTemperature << std::endl;
 }
 
 int main (int argc, char *argv[])
@@ -202,11 +222,11 @@ int main (int argc, char *argv[])
   double distance = 500;  // m
   uint32_t packetSize = 1000; // bytes
   uint32_t dataSize = 100000;   // bytes
-  uint32_t numPackets = 100;
+  uint32_t numPackets = 1000;
   uint32_t numNodes = 25;  // by default, 5x5
   uint32_t sinkNode = 0;
   uint32_t sourceNode = 24;
-  double interval = 0.1; // seconds
+  double interval = 0.001; // seconds
   bool verbose = false;
   bool tracing = false;
 
@@ -351,6 +371,7 @@ int main (int argc, char *argv[])
 
   Simulator::Stop (Seconds (1000.0));
   Simulator::Schedule (Seconds(999.0), &Plotter);
+  Simulator::Schedule (Seconds(999.9), &PrintAverages);
   Simulator::Run ();
   Simulator::Destroy ();
 

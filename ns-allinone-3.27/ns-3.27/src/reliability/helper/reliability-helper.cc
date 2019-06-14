@@ -31,6 +31,7 @@ ReliabilityHelper::ReliabilityHelper (void)
   m_performance.SetTypeId ("ns3::PerformanceSimpleModel");
   m_temperature.SetTypeId ("ns3::TemperatureModel");
   m_reliability.SetTypeId ("ns3::ReliabilityTDDBModel");
+  m_Tenv = 25.0;
 }
 
 ReliabilityHelper::~ReliabilityHelper (void)
@@ -154,6 +155,12 @@ ReliabilityHelper::SetDeviceType(std::string devicetype)
 }
 
 void
+ReliabilityHelper::SetAmbientTemperature(double Tenv)
+{
+  m_Tenv = Tenv;
+}
+
+void
 ReliabilityHelper::Install (Ptr<Node> node)
 {
   Ptr<Object> object = node;
@@ -210,6 +217,7 @@ ReliabilityHelper::Install (Ptr<Node> node)
       object->AggregateObject (reliabilitymodel);
     }
 
+    temperaturemodel->SetTenv(m_Tenv);
     reliabilitymodel->RegisterTemperatureModel(temperaturemodel);
     powermodel->RegisterPerformanceModel(performancemodel);
     powermodel->RegisterTemperatureModel (temperaturemodel);

@@ -40,6 +40,9 @@ public:
   */
   virtual double GetExecTime (void) const;
 
+
+
+
  /**
    * Set Application
    */
@@ -56,7 +59,8 @@ public:
   virtual double GetDataSize (void) const;
   virtual double GetPacketSize (void) const;
   virtual void SetDataSize (const DoubleValue &v0) = 0;
-
+  virtual double GetThroughput (void) const;
+  virtual void SetThroughput (double throughput) = 0;
 
 private:
   virtual void DoDispose (void);

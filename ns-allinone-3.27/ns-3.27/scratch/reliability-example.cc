@@ -114,6 +114,7 @@ PrintInfo (Ptr<Node> node)
 
   std::cout<<"At time "<< Simulator::Now().GetSeconds()<<", NodeId = "<<node->GetId();
   std::cout << " CPU Power = " << node->GetObject<PowerModel>()->GetPower();
+  std::cout << " Performance = " << node->GetObject<PerformanceModel>()->GetThroughput();
   std::cout << " Temperature = " << node->GetObject<TemperatureModel>()->GetTemperature()<<std::endl;
   std::cout << " Reliability = " << node->GetObject<ReliabilityModel>()->GetReliability()<<std::endl;
 

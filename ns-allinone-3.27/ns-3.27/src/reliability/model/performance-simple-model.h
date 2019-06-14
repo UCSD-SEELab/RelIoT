@@ -49,10 +49,16 @@ public:
   virtual void SetApplication (std::string m_appName, const DoubleValue &v0);
   virtual double GetPacketSize (void) const;
   virtual void SetPacketSize (const DoubleValue &v1);
+  virtual void SetThroughput(double throughput);
   /**
    * \returns execution time.
    */
   virtual double GetExecTime (void) const;
+
+  /**
+   * \returns throughput.
+   */
+  virtual double GetThroughput (void) const;
 
 private:
   virtual void DoDispose (void);
@@ -68,6 +74,7 @@ private:
   double m_packetSize;
   std::string m_deviceType;
   TracedValue<double> m_exectime;
+  double m_throughput;
 
 };
 

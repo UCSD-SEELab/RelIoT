@@ -51,7 +51,8 @@ public:
   virtual double GetAvgTemperature (void) const;
 
   virtual void SetDeviceType(std::string devicetype) = 0;
-
+  virtual void SetTenv(double Tenv) = 0;
+  
 private:
   virtual void DoDispose (void);
 

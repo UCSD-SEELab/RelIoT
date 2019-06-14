@@ -289,6 +289,73 @@ UtilPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
       NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << appname);
     }
   }
+  else if(m_deviceType == "Server")
+  {
+    if(appname == "AdaBoost")
+    {
+      m_A = 0.0;
+      m_B = 8.54*pow(10,-1);
+      m_C = 6.67*pow(10,2);
+    }
+    else if(appname == "DecisionTree")
+    {
+      m_A = 0.0;
+      m_B = 7.76*pow(10,-2);
+      m_C = 3.41*pow(10,2);
+    }
+    else if(appname == "RandomForest")
+    {
+      m_A = 4.13*pow(10,-6);
+      m_B = 2.04*pow(10,-1);
+      m_C = 3.94*pow(10,2);
+    }
+    else if(appname == "kNN")
+    {
+      m_A = 0.0;
+      m_B = 1.64*pow(10,-1);
+      m_C = 4.97*pow(10,2);
+    }
+      else if(appname == "LinearSVM")
+    {
+      m_A = 3.66*pow(10,-2);
+      m_B = 5.75*pow(10,0);
+      m_C = 3.87*pow(10,2);
+    }
+    else if(appname == "AffinityPropagation")
+    {
+      m_A = 1.59*pow(10,1);
+      m_B = 3.33*pow(10,1);
+      m_C = 2.04*pow(10,2);
+    }
+    else if(appname == "Birch")
+    {
+      m_A = 2.00*pow(10,-1);
+      m_B = -8.36*pow(10,-1);
+      m_C = 4.11*pow(10,2);
+    }
+    else if(appname == "k-means")
+    {
+      m_A = 2.47*pow(10,-1);
+      m_B = -8.38*pow(10,0);
+      m_C = 5.12*pow(10,2);
+    }
+    else if(appname == "BayesianRegression")
+    {
+      m_A = 2.55*pow(10,-6);
+      m_B = -4.49*pow(10,-2);
+      m_C = 8.04*pow(10,2);
+    }
+    else if(appname == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 1.94*pow(10,-1);
+      m_C = -9.51*pow(10,2);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << appname);
+    }
+  }
   else if(m_deviceType == "Arduino")
   {
     if(appname == "MedianFilter")

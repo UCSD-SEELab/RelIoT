@@ -199,6 +199,13 @@ TemperatureSimpleModel::SetDeviceType(std::string devicetype)
   m_C = -0.000679;
   m_D = 9.795560;
   }
+  else if (m_deviceType == "Server")
+  {
+  m_A = 0.763094;
+  m_B = 0.010693;
+  m_C = -0.000679;
+  m_D = 9.795560;
+  }
   else
   {
     NS_FATAL_ERROR ("TemperatureSimpleModel:Undefined device type: " << m_deviceType);
