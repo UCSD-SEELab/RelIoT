@@ -488,7 +488,7 @@ AppPowerModel::UpdatePower ()
     }
   //m_powerUpdateEvent.Cancel ();
   if(m_currentState == 1){
-    m_energy = m_A*pow(m_dataSize,2) + m_B*m_dataSize/1000 + m_C;
+    m_energy = m_A*pow(m_dataSize,2)/1000000 + m_B*m_dataSize/1000 + m_C;
     m_cpupower = m_energy/m_exectime;
   }
   else

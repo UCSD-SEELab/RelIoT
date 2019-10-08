@@ -58,6 +58,14 @@ public:
    */
   virtual double GetReliability (void) const;
 
+  // Utility functions
+  virtual double g(double u , double v , double t_0 , double scale_p , double shape_p) const;
+  virtual double pdf_u(double x , double mean , double sigma) const;
+  virtual double pdf_v(double v , double offset , double mult , double degrees) const;
+  virtual double scale_par(double T , double V , double offset_a , double mult_a , double tau_a , double tauvolt_a) const;
+  virtual double shape_par(double T , double V , double mult_b , double tau_b , double offset_b , double multvolt_b) const; 
+  virtual double Chi_Square_Density(double x , double n) const;
+  virtual double Ln_Gamma_Function(double x) const;
   /**
    * \brief 
    *
@@ -75,6 +83,47 @@ private:
   double m_A;
   double m_B;
   double m_area;
+  double voltage;
+  //Scale-Shape Constants
+
+
+  double offset_a;
+  double mult_a;
+  double tau_a;
+  double tauvolt_a;
+  double mult_b;
+  double tau_b;
+  double offset_b;
+  double multvolt_b;
+
+  //Reliability Parameters
+
+  double pdf_v_offset;
+  double pdf_v_mult;
+  double pdf_v_degrees;
+  double pdf_u_mean;
+  double pdf_u_sigma;
+  double scale_parameter;
+  double shape_parameter;
+
+  //Double integral domain
+  double u_max;
+  double u_min;
+  double v_max;
+  double v_min;
+  double subdomain_step_u;
+  double subdomain_step_v;
+  int u_num_step;
+  int v_num_step;
+  double subdomain_area;
+
+  double A;
+  int LI_index;
+  double delta_LI;
+  double t_life;
+  double Rd;
+
+
 
   Ptr<TemperatureModel> m_temperatureModel;
 
