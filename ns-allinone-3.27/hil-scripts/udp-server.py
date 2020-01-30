@@ -1,8 +1,8 @@
 #!/usr/bin/python
 import socket
 
-UDP_IP = "10.0.0.2"
-UDP_PORT = 3000
+UDP_IP = "10.1.1.5"
+UDP_PORT = 4000
 
 sock = socket.socket(socket.AF_INET, # Internet
                       socket.SOCK_DGRAM) # UDP
