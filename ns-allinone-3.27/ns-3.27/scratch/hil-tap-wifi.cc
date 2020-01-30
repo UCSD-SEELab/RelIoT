@@ -81,22 +81,45 @@
  #include "ns3/mobility-module.h"
  using namespace ns3;
 
-#define packetSize 20
+ #define packetSize 30
+ #define ROUNDS 10
+ Time st_time, delay_time; // global variables to track delay
+ double delayTime, execTime, commTime; // global variable to track delay in seconds
+ Ptr<Socket> source, dest; // source node in ns-3 and remote node of Pi
+ Time interPacketInterval; // interval between end of receiving and next transmitting
+ uint8_t datasize[5] = {10000, 20000, 30000, 40000, 50000};
 
  NS_LOG_COMPONENT_DEFINE ("HILTapWifiExample");
 
+
+ /**
+  * \param socket Pointer to socket.
+  * \param pktSize Packet size.
+  * \param n Pointer to node.
+  * \param pktCount Number of packets to generate.
+  * \param pktInterval Packet sending interval.
+  *
+  * Traffic generator.
+  */
+ static void
+ GenerateTraffic (Ptr<Socket> socket, Time pktInterval)
+ {
+   char msg[packetSize] = "data,0,50000";
+   uint8_t size = strlen(msg);
+   Ptr<Packet> pkt = Create<Packet> (reinterpret_cast<const uint8_t*> (msg), size);
+   st_time = Simulator::Now();
+   socket->Send (pkt);
+   // Simulator::Schedule (pktInterval, &GenerateTraffic, socket, pktInterval);
+ }
+
  static inline std::string
- PrintReceivedPacket (Address& from, Ptr<Packet> packet)
+ PrintReceivedPacket (Address& from)
  {
    InetSocketAddress iaddr = InetSocketAddress::ConvertFrom (from);
-   uint8_t buf[packetSize];
-   packet->CopyData(buf, packetSize);
-
    std::ostringstream oss;
    oss << "--\nReceived one packet! From socket: " << iaddr.GetIpv4 ()
        << " port: " << iaddr.GetPort ()
        << " at time = " << Simulator::Now ().GetSeconds ()
-       << "\n" << buf
        << "\n--";
 
    return oss.str ();
@@ -113,30 +136,37 @@
    Ptr<Packet> packet;
    Address from;
    while ((packet = socket->RecvFrom (from)))
+   {
+     if (packet->GetSize () > 0)
      {
-       if (packet->GetSize () > 0)
-         {
-           NS_LOG_UNCOND (PrintReceivedPacket (from, packet));
-         }
+       // process the header of the message
+       char buf[packetSize];
+       packet->CopyData( (uint8_t *) buf, packetSize);
+       char * pch = strchr (buf, ',');
+       * pch = '\0';
+       * (pch + 14) = '\0';
+
+       // check the content of the message
+       if (strcmp (buf, "data") == 0) {
+         // calculate the total delay in ns-3
+         delay_time = Simulator::Now() - st_time;
+         delayTime = delay_time.ToDouble (Time::S);
+         // extract the execution delay on Pi
+         execTime = strtod (pch + 1, NULL);
+         commTime = delayTime - execTime;
+
+         std::ofstream log_file("log.txt", std::ios_base::app | std::ios_base::out);
+         log_file << execTime << "," << delayTime << "," << commTime << "\n";
+         std::cout << "Exec. Time: " << execTime << " "
+                   << "Total Time: " << delayTime << " "
+                   << "Comm. Time: " << commTime << std::endl;
+         NS_LOG_INFO (PrintReceivedPacket (from));
+         Simulator::Schedule (interPacketInterval, &GenerateTraffic, source, interPacketInterval);
+       }
      }
+   }
  }
 
- /**
-  * \param socket Pointer to socket.
-  * \param pktSize Packet size.
-  * \param n Pointer to node.
-  * \param pktCount Number of packets to generate.
-  * \param pktInterval Packet sending interval.
-  *
-  * Traffic generator.
-  */
- static void
- GenerateTraffic (Ptr<Socket> socket, Time pktInterval)
- {
-   Ptr<Packet> pkt = Create<Packet> (reinterpret_cast<const uint8_t*> ("hello"), 5);
-   socket->Send (pkt);
-   Simulator::Schedule (pktInterval, &GenerateTraffic, socket, pktInterval);
- }
 
  int
  main (int argc, char *argv[])
@@ -147,8 +177,7 @@
    std::string tapName = "tap0";
    double interval = 1;          // seconds
    double startTime = 0.0;       // seconds
-   // Convert to time object
-   Time interPacketInterval = Seconds (interval);
+   interPacketInterval = Seconds (interval); // convert to Time object
 
    CommandLine cmd;
    cmd.AddValue ("mode", "Mode setting of TapBridge", mode);
@@ -181,6 +210,7 @@
    YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
    YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
    wifiPhy.SetChannel (wifiChannel.Create ());
+   wifiPhy.Set ("ChannelNumber", UintegerValue (5));
 
    //
    // Install the wireless devices onto our ghost nodes.
@@ -196,7 +226,7 @@
    positionAlloc->Add (Vector (0.0, 0.0, 0.0));
    positionAlloc->Add (Vector (10.0, 0.0, 0.0));
    positionAlloc->Add (Vector (20.0, 0.0, 0.0));
-   positionAlloc->Add (Vector (0.0, 10.0, 0.0));
+   positionAlloc->Add (Vector (0.0, 20.0, 0.0));
    mobility.SetPositionAllocator (positionAlloc);
    mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
    mobility.Install (nodes);
@@ -216,17 +246,17 @@
    char revIP[] = "10.1.1.4";
    uint16_t revPort = 4000;
    TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
-   Ptr<Socket> recvSink = Socket::CreateSocket (nodes.Get (revNode), tid);
+   dest = Socket::CreateSocket (nodes.Get (revNode), tid);
    InetSocketAddress local = InetSocketAddress (Ipv4Address (revIP), revPort);
-   recvSink->Bind (local);
-   recvSink->SetRecvCallback (MakeCallback (&ReceivePacket));
+   dest->Bind (local);
+   dest->SetRecvCallback (MakeCallback (&ReceivePacket));
 
-   // add a UDP sender on node 2 (10.1.1.3) toward piNode (10.1.1.5)
+   // add a UDP sender on node 3 (10.1.1.4) toward piNode (10.1.1.5)
    // Run udp-server.py on Pi to see the sent message
-   uint8_t sendNode = 2;
+   uint8_t sendNode = 3;
    char piAddr[] = "10.1.1.5";
    uint16_t piPort = 4000;
-   Ptr<Socket> source = Socket::CreateSocket (nodes.Get (sendNode), tid);
+   source = Socket::CreateSocket (nodes.Get (sendNode), tid);
    InetSocketAddress remote = InetSocketAddress (Ipv4Address (piAddr), piPort);
    // Note: in our test, broadcast on this channel will not send to the external Pi
    // InetSocketAddress remote = InetSocketAddress (Ipv4Address::GetBroadcast (), piPort);
