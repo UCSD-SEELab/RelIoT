@@ -1,59 +1,71 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
- /*
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-  * published by the Free Software Foundation;
-  *
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  *
-  * You should have received a copy of the GNU General Public License
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
- // Network topology
- //
- // Packets sent to the device "thetap" on the Linux host will be sent to the
- // tap bridge on node zero and then emitted onto the ns-3 simulated CSMA
- // network.  ARP will be used on the CSMA network to resolve MAC addresses.
- // Packets destined for the CSMA device on node zero will be sent to the
- // device "thetap" on the linux Host.
- //
- //  +----------+
- //  | external |
- //  |  Linux   |
- //  |   Host   |
- //  |          |
- //  | "thetap" |
- //  +----------+
- //       |           n0            n1            n2            n3
- //       |       +--------+    +--------+    +--------+    +--------+
- //       +-------|  tap   |    |        |    |        |    |        |
- //               | bridge |    |        |    |        |    |        |
- //               +--------+    +--------+    +--------+    +--------+
- //               |  CSMA  |    |  CSMA  |    |  CSMA  |    |  CSMA  |
- //               +--------+    +--------+    +--------+    +--------+
- //                   |             |             |             |
- //                   |             |             |             |
- //                   |             |             |             |
- //                   ===========================================
- //                                 CSMA LAN 10.1.1
- //
- // The CSMA device on node zero is:  10.1.1.1
- // The CSMA device on node one is:   10.1.1.2
- // The CSMA device on node two is:   10.1.1.3
- // The CSMA device on node three is: 10.1.1.4
- //
- // Some simple things to do:
- //
- // 1) Ping one of the simulated nodes
- //
- //    ./waf --run tap-csma&
- //    ping 10.1.1.2
- //
+//
+// This is an illustration of how one could use virtualization techniques to
+// allow running applications on virtual machines talking over simulated
+// networks.
+//
+// The actual steps required to configure the virtual machines can be rather
+// involved, so we don't go into that here.  Please have a look at one of
+// our HOWTOs on the nsnam wiki for more details about how to get the
+// system confgured.  For an example, have a look at "HOWTO Use Linux
+// Containers to set up virtual networks" which uses this code as an
+// example.
+//
+// The configuration you are after is explained in great detail in the
+// HOWTO, but looks like the following:
+//
+//  +----------+
+//  | virtual  |
+//  |  Linux   |
+//  |   Host   |
+//  |          |
+//  |   eth0   |
+//  +----------+
+//       |
+//  +----------+
+//  |  Linux   |
+//  |  Bridge  |
+//  +----------+
+//       |
+//  +----------+
+//  | "tap0"   |
+//  +----------+
+//       |           n0            n1            n2            n3
+//       |       +--------+    +--------+    +--------+    +--------+
+//       +-------|  tap   |    |        |    |        |    |        |
+//               | bridge |    |        |    |        |    |        |
+//               +--------+    +--------+    +--------+    +--------+
+//               |  wifi  |    |  wifi  |    |  wifi  |    |  wifi  |
+//               +--------+    +--------+    +--------+    +--------+
+//                   |             |             |             |
+//                 ((*))         ((*))         ((*))         ((*))
+//
+//                       Wifi LAN
+//
+//                        ((*))
+//                          |
+//                     +--------+
+//                     |  wifi  |
+//                     +--------+
+//                     | access |
+//                     |  point |
+//                     +--------+
+//
  #include <iostream>
  #include <fstream>
 
@@ -66,12 +78,12 @@
  #include "ns3/tap-bridge-module.h"
  #include "ns3/applications-module.h"
  #include "ns3/internet-apps-module.h"
-
+ #include "ns3/mobility-module.h"
  using namespace ns3;
 
 #define packetSize 20
 
- NS_LOG_COMPONENT_DEFINE ("HILTapCsmaExample");
+ NS_LOG_COMPONENT_DEFINE ("HILTapWifiExample");
 
  static inline std::string
  PrintReceivedPacket (Address& from, Ptr<Packet> packet)
@@ -129,7 +141,9 @@
  int
  main (int argc, char *argv[])
  {
-   std::string mode = "UseBridge";
+   // Wireless STA nodes do not support SendFrom()
+   // Can only work in UseLocal mode
+   std::string mode = "UseLocal";
    std::string tapName = "tap0";
    double interval = 1;          // seconds
    double startTime = 0.0;       // seconds
@@ -148,12 +162,44 @@
    NodeContainer nodes;
    nodes.Create (4);
 
-   // create csma channel on physical layer
-   CsmaHelper csma;
-   csma.SetChannelAttribute ("DataRate", DataRateValue (5000000));
-   csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));
+   //
+   // We're going to use 802.11 A so set up a wifi helper to reflect that.
+   //
+   WifiHelper wifi;
+   wifi.SetStandard (WIFI_PHY_STANDARD_80211a);
+   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue ("OfdmRate54Mbps"));
 
-   NetDeviceContainer devices = csma.Install (nodes);
+   //
+   // No reason for pesky access points, so we'll use an ad-hoc network.
+   //
+   WifiMacHelper wifiMac;
+   wifiMac.SetType ("ns3::AdhocWifiMac");
+
+   //
+   // Configure the physcial layer.
+   //
+   YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
+   YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
+   wifiPhy.SetChannel (wifiChannel.Create ());
+
+   //
+   // Install the wireless devices onto our ghost nodes.
+   //
+   NetDeviceContainer devices = wifi.Install (wifiPhy, wifiMac, nodes);
+
+   //
+   // We need location information since we are talking about wifi, so add a
+   // constant position to the ghost nodes.
+   //
+   MobilityHelper mobility;
+   Ptr<ListPositionAllocator> positionAlloc = CreateObject<ListPositionAllocator> ();
+   positionAlloc->Add (Vector (0.0, 0.0, 0.0));
+   positionAlloc->Add (Vector (10.0, 0.0, 0.0));
+   positionAlloc->Add (Vector (20.0, 0.0, 0.0));
+   positionAlloc->Add (Vector (0.0, 10.0, 0.0));
+   mobility.SetPositionAllocator (positionAlloc);
+   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+   mobility.Install (nodes);
 
    // add an ip stack to all nodes
    InternetStackHelper stack;
@@ -188,8 +234,8 @@
    source->Connect (remote);
 
    // enable routing tables
-   csma.EnablePcapAll ("tap-csma", false);
-   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+   // csma.EnablePcapAll ("tap-csma", false);
+   // Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
    // set tap bridge to connect to external pi
    TapBridgeHelper tapBridge;
