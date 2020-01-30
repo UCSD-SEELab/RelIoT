@@ -165,6 +165,7 @@
    Ipv4InterfaceContainer interfaces = ipv4.Assign (devices);
 
    // add a UDP receiver to node 3 (10.1.1.4)
+   // Run udp-client.py on Pi to get the receiving log
    uint8_t revNode = 3;
    uint16_t revPort = 4000;
    TypeId tid = TypeId::LookupByName ("ns3::UdpSocketFactory");
@@ -174,12 +175,14 @@
    recvSink->SetRecvCallback (MakeCallback (&ReceivePacket));
 
    // add a UDP sender on node 2 (10.1.1.3) toward piNode (10.1.1.5)
+   // Run udp-server.py on Pi to see the sent message
    uint8_t sendNode = 2;
    char piAddr[] = "10.1.1.5";
    uint16_t piPort = 4000;
    Ptr<Socket> source = Socket::CreateSocket (nodes.Get (sendNode), tid);
-   // InetSocketAddress remote = InetSocketAddress (Ipv4Address::GetBroadcast (), piPort);
    InetSocketAddress remote = InetSocketAddress (Ipv4Address (piAddr), piPort);
+   // Note: in our test, broadcast on this channel will not send to the external Pi
+   // InetSocketAddress remote = InetSocketAddress (Ipv4Address::GetBroadcast (), piPort);
    source->SetAllowBroadcast (true);
    source->Connect (remote);
 
