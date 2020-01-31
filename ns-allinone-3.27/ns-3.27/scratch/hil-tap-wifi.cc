@@ -96,9 +96,6 @@
 
  /**
   * \param socket Pointer to socket.
-  * \param pktSize Packet size.
-  * \param n Pointer to node.
-  * \param pktCount Number of packets to generate.
   * \param pktInterval Packet sending interval.
   *
   * Traffic generator.
@@ -127,14 +124,34 @@
    // Simulator::Schedule (pktInterval, &GenerateTraffic, socket, pktInterval);
  }
 
+ /**
+  * \param socket Pointer to socket.
+  * \param reqInterval Request sending interval.
+  *
+  * Sending power and temperature request to Pi.
+  */
+ static void
+ GenerateRequest (Ptr<Socket> socket, Time reqInterval)
+ {
+   // send power data request
+   Ptr<Packet> pkt = Create<Packet> (reinterpret_cast<const uint8_t*> ("power"), 5);
+   socket->Send (pkt);
+
+   // send temperature data request
+   pkt = Create<Packet> (reinterpret_cast<const uint8_t*> ("temp"), 4);
+   socket->Send (pkt);
+   Simulator::Schedule (reqInterval, &GenerateRequest, socket, reqInterval);
+ }
+
  static inline std::string
- PrintReceivedPacket (Address& from)
+ PrintReceivedPacket (Address& from, char * buf)
  {
    InetSocketAddress iaddr = InetSocketAddress::ConvertFrom (from);
    std::ostringstream oss;
    oss << "--\nReceived one packet! From socket: " << iaddr.GetIpv4 ()
        << " port: " << iaddr.GetPort ()
        << " at time = " << Simulator::Now ().GetSeconds ()
+       << "\n" << buf
        << "\n--";
 
    return oss.str ();
@@ -172,6 +189,7 @@
        char * pch = strchr (buf, ',');
        * pch = '\0';
        * (pch + 14) = '\0';
+       NS_LOG_INFO (PrintReceivedPacket (from, buf));
 
        // check the content of the message
        if (strcmp (buf, "data") == 0) {
@@ -183,7 +201,6 @@
          commTime = delayTime - execTime;
 
          LogtoFile();
-         NS_LOG_INFO (PrintReceivedPacket (from));
 
          // update index
          cnt++;
@@ -191,11 +208,21 @@
            dSize_idx++;
            cnt = 0;
          }
-         if (dSize_idx >= CNTS)
-           Simulator::Stop(); // terminate
-         else
+         // if (dSize_idx >= CNTS)
+         //  Simulator::Stop(); // terminate
+         // else
            Simulator::Schedule (interPacketInterval, &GenerateTraffic, source,
              interPacketInterval);
+       }
+       else if (strcmp (buf, "power") == 0) {
+         double pwr = strtod (pch + 1, NULL);
+         std::ofstream log_power("power.txt", std::ios_base::app | std::ios_base::out);
+         log_power << Simulator::Now ().GetSeconds () << "," << pwr << "\n";
+       }
+       else if (strcmp (buf, "temp") == 0) {
+         double temp = strtod (pch + 1, NULL);
+         std::ofstream log_temp("temp.txt", std::ios_base::app | std::ios_base::out);
+         log_temp << Simulator::Now ().GetSeconds () << "," << temp << "\n";
        }
      }
    }
@@ -209,9 +236,10 @@
    // Can only work in UseLocal mode
    std::string mode = "UseLocal";
    std::string tapName = "tap0";
-   double interval = 1;          // seconds
-   double startTime = 0.0;       // seconds
+   double interval = 1;          // packet interval in seconds
    interPacketInterval = Seconds (interval); // convert to Time object
+   double reqinterval = 0.1;     // request interval in seconds
+   double startTime = 0.0;       // seconds
    /*
    * This is a magic number used to set the transmit power, based on other
    * configuration.
@@ -320,7 +348,8 @@
    tapBridge.Install (nodes.Get (0), devices.Get (0));
 
    Simulator::Schedule (Seconds (startTime), &GenerateTraffic, source, interPacketInterval);
-   // Simulator::Stop (Seconds (300.));
+   Simulator::Schedule (Seconds (startTime), &GenerateRequest, source, Seconds (reqinterval));
+   Simulator::Stop (Seconds (80.));
    Simulator::Run ();
    Simulator::Destroy ();
  }
