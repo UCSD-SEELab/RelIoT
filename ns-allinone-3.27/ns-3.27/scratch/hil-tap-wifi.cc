@@ -212,6 +212,12 @@
    double interval = 1;          // seconds
    double startTime = 0.0;       // seconds
    interPacketInterval = Seconds (interval); // convert to Time object
+   /*
+   * This is a magic number used to set the transmit power, based on other
+   * configuration.
+   */
+   double offset = 81;
+   double Prss = -80;            // dBm
 
    CommandLine cmd;
    cmd.AddValue ("mode", "Mode setting of TapBridge", mode);
@@ -230,7 +236,8 @@
    //
    WifiHelper wifi;
    wifi.SetStandard (WIFI_PHY_STANDARD_80211a);
-   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue ("OfdmRate54Mbps"));
+   // wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue ("OfdmRate54Mbps"));
+   wifi.SetRemoteStationManager ("ns3::ConstantRateWifiManager", "DataMode", StringValue ("OfdmRate6Mbps"));
 
    //
    // No reason for pesky access points, so we'll use an ad-hoc network.
@@ -241,10 +248,15 @@
    //
    // Configure the physcial layer.
    //
-   YansWifiChannelHelper wifiChannel = YansWifiChannelHelper::Default ();
+   YansWifiChannelHelper wifiChannel;
+   wifiChannel.SetPropagationDelay ("ns3::ConstantSpeedPropagationDelayModel");
+   wifiChannel.AddPropagationLoss ("ns3::FriisPropagationLossModel");
    YansWifiPhyHelper wifiPhy = YansWifiPhyHelper::Default ();
    wifiPhy.SetChannel (wifiChannel.Create ());
    wifiPhy.Set ("ChannelNumber", UintegerValue (5));
+   wifiPhy.Set ("RxGain", DoubleValue (-10));
+   wifiPhy.Set ("TxGain", DoubleValue (offset + Prss));
+   wifiPhy.Set ("CcaMode1Threshold", DoubleValue (0.0));
 
    //
    // Install the wireless devices onto our ghost nodes.
@@ -260,7 +272,7 @@
    positionAlloc->Add (Vector (0.0, 0.0, 0.0));
    positionAlloc->Add (Vector (10.0, 0.0, 0.0));
    positionAlloc->Add (Vector (20.0, 0.0, 0.0));
-   positionAlloc->Add (Vector (0.0, 20.0, 0.0));
+   positionAlloc->Add (Vector (20.0, 20.0, 0.0));
    mobility.SetPositionAllocator (positionAlloc);
    mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
    mobility.Install (nodes);
