@@ -83,11 +83,13 @@
 
  #define packetSize 30
  #define ROUNDS 10
+ #define CNTS 5
  Time st_time, delay_time; // global variables to track delay
  double delayTime, execTime, commTime; // global variable to track delay in seconds
  Ptr<Socket> source, dest; // source node in ns-3 and remote node of Pi
  Time interPacketInterval; // interval between end of receiving and next transmitting
- uint8_t datasize[5] = {10000, 20000, 30000, 40000, 50000};
+ uint32_t datasize[CNTS] = {10000, 20000, 30000, 40000, 50000};
+ uint8_t dSize_idx = 0, cnt = 0;
 
  NS_LOG_COMPONENT_DEFINE ("HILTapWifiExample");
 
@@ -104,7 +106,20 @@
  static void
  GenerateTraffic (Ptr<Socket> socket, Time pktInterval)
  {
-   char msg[packetSize] = "data,0,50000";
+   char dSize[packetSize];
+   sprintf(dSize, "%d", datasize[dSize_idx]);
+
+   //
+   // This part for tranmitting all data
+   // char msg[packetSize] = "data,0,";
+   // strcat(msg, dSize);
+
+   //
+   // This part for local computation
+   char msg[packetSize] = "data,";
+   strcat(msg, dSize);
+   strcat(msg, ",10");
+
    uint8_t size = strlen(msg);
    Ptr<Packet> pkt = Create<Packet> (reinterpret_cast<const uint8_t*> (msg), size);
    st_time = Simulator::Now();
@@ -123,6 +138,18 @@
        << "\n--";
 
    return oss.str ();
+ }
+
+ static inline void
+ LogtoFile ()
+ {
+   std::ofstream log_file("log.txt", std::ios_base::app | std::ios_base::out);
+   log_file << datasize[dSize_idx] << "," << execTime << ","
+            << delayTime << "," << commTime << "\n";
+   std::cout << "Data Size: " << datasize[dSize_idx] << " "
+             << "Exec. Time: " << execTime << " "
+             << "Total Time: " << delayTime << " "
+             << "Comm. Time: " << commTime << std::endl;
  }
 
  /**
@@ -155,13 +182,20 @@
          execTime = strtod (pch + 1, NULL);
          commTime = delayTime - execTime;
 
-         std::ofstream log_file("log.txt", std::ios_base::app | std::ios_base::out);
-         log_file << execTime << "," << delayTime << "," << commTime << "\n";
-         std::cout << "Exec. Time: " << execTime << " "
-                   << "Total Time: " << delayTime << " "
-                   << "Comm. Time: " << commTime << std::endl;
+         LogtoFile();
          NS_LOG_INFO (PrintReceivedPacket (from));
-         Simulator::Schedule (interPacketInterval, &GenerateTraffic, source, interPacketInterval);
+
+         // update index
+         cnt++;
+         if (cnt >= ROUNDS) {
+           dSize_idx++;
+           cnt = 0;
+         }
+         if (dSize_idx >= CNTS)
+           Simulator::Stop(); // terminate
+         else
+           Simulator::Schedule (interPacketInterval, &GenerateTraffic, source,
+             interPacketInterval);
        }
      }
    }
@@ -274,7 +308,7 @@
    tapBridge.Install (nodes.Get (0), devices.Get (0));
 
    Simulator::Schedule (Seconds (startTime), &GenerateTraffic, source, interPacketInterval);
-   Simulator::Stop (Seconds (30.));
+   // Simulator::Stop (Seconds (300.));
    Simulator::Run ();
    Simulator::Destroy ();
  }
