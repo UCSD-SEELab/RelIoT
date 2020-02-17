@@ -246,9 +246,9 @@ PerformanceSimpleModel::SetApplication (std::string m_appName, const DoubleValue
     else if(m_appName == "LinearRegression")
     {
       m_A = 0.0;
-      m_B = 2.28*pow(10,-4);
-      m_C = -9.38*pow(10,-1);
-      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+      m_B = 6.154*pow(10,-6);
+      m_C = 0.12*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize) + m_C);
     }
     else
     {
@@ -323,9 +323,9 @@ PerformanceSimpleModel::SetApplication (std::string m_appName, const DoubleValue
     else if(m_appName == "LinearRegression")
     {
       m_A = 0.0;
-      m_B = 9.32*pow(10,-4);
-      m_C = -7.06*pow(10,0);
-      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize/1000) + m_C);
+      m_B = 6.154*pow(10,-6);
+      m_C = 0.12*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize) + m_C);
     }
     else
     {
@@ -340,6 +340,20 @@ PerformanceSimpleModel::SetApplication (std::string m_appName, const DoubleValue
       m_B = 1.0*pow(10,-1);
       m_C = 0.5*pow(10,0);
       m_exectime = std::max(0.1,(m_B*m_datasize)/1000 + m_C);
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
+    }
+  }
+  else if(m_deviceType == "RaspberryPi0")
+  {
+    if(m_appName == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 5.76*pow(10,-6);
+      m_C = -0.06*pow(10,0);
+      m_exectime = std::max(0.1,(m_A*pow(m_datasize,2)/1000000+ m_B*m_datasize) + m_C);
     }
     else
     {

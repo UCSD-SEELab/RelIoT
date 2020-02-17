@@ -93,7 +93,7 @@ AppPowerModel::AppPowerModel ()
 {
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
-  m_powerUpdateInterval = Seconds (0.045);
+  m_powerUpdateInterval = Seconds (0.01);
   m_temperatureModel = NULL;      // TemperatureModel
   m_performanceModel = NULL;      // PerformanceModel
   m_currentState = 0;
@@ -306,8 +306,8 @@ AppPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
     else if(m_appName == "LinearRegression")
     {
       m_A = 0.0;
-      m_B = 8.13*pow(10,-4);
-      m_C = 1.94*pow(10,1);
+      m_B = 1.014*pow(10,-5);
+      m_C = 3.172;
     }
     else
     {
@@ -394,6 +394,19 @@ AppPowerModel::SetApplication(std::string appname, const DoubleValue &v0)
       NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
     }
   }
+  else if(m_deviceType == "RaspberryPi0")
+  {
+    if(m_appName == "LinearRegression")
+    {
+      m_A = 0.0;
+      m_B = 6.337*pow(10,-7);
+      m_C = 1.304;
+    }
+    else
+    {
+      NS_FATAL_ERROR ("AppPowerModel:Undefined application for this device: " << m_appName);
+    }
+  }
   else
   {
     NS_FATAL_ERROR ("AppPowerModel:Undefined device type: " << m_deviceType);
@@ -408,7 +421,12 @@ AppPowerModel::SetDeviceType(std::string devicetype)
   m_deviceType = devicetype;
   if(m_deviceType == "RaspberryPi")
   {
-    m_idlePowerW = 2.8;
+    m_idlePowerW = 2.0;
+    m_cpupower = m_idlePowerW;
+  }
+  else if (m_deviceType == "RaspberryPi0")
+  {
+    m_idlePowerW = 0.85;
     m_cpupower = m_idlePowerW;
   }
   else if (m_deviceType == "Arduino")
@@ -490,6 +508,9 @@ AppPowerModel::UpdatePower ()
   if(m_currentState == 1){
     m_energy = m_A*pow(m_dataSize,2)/1000000 + m_B*m_dataSize/1000 + m_C;
     m_cpupower = m_energy/m_exectime;
+    if((m_deviceType == "RaspberryPi") || (m_deviceType == "RaspberryPi0")){
+      m_cpupower = m_A*pow(m_dataSize,2)/1000000 + m_B*m_dataSize/1000 + m_C;
+    }
   }
   else
   {

@@ -192,6 +192,13 @@ TemperatureSimpleModel::SetDeviceType(std::string devicetype)
   m_C = 0.04894698;
   m_D = -3.14462264;
   }
+  else if(m_deviceType == "RaspberryPi0")
+  {
+  m_A = 0.14434;
+  m_B = 0.98885;
+  m_C = 0.04894698;
+  m_D = -3.14462264;
+  }
   else if (m_deviceType == "Arduino")
   {
   m_A = 0.763094;
