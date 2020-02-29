@@ -215,7 +215,8 @@ CpuEnergyModel::ChangeState (int newState)
           NS_LOG_DEBUG ("CpuEnergyModel:Running app" <<
                           " at time = " << Simulator::Now ());
           m_powerModel->RunApp();
-          energyToDecrease = m_powerModel->GetEnergy();
+          //energyToDecrease = m_powerModel->GetEnergy();
+          energyToDecrease = duration.GetSeconds () * m_powerModel->GetPower();
         } else {
           NS_LOG_DEBUG ("CpuEnergyModel: BUSY, an app is still running" <<
                           " at time = " << Simulator::Now ());        

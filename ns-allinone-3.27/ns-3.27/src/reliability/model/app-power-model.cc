@@ -97,7 +97,9 @@ AppPowerModel::AppPowerModel ()
   m_temperatureModel = NULL;      // TemperatureModel
   m_performanceModel = NULL;      // PerformanceModel
   m_currentState = 0;
-  m_cpupower = 2.8;
+  m_cpupower = 0;
+  Simulator::Schedule (m_powerUpdateInterval,&AppPowerModel::IsIdle,this);
+
 }
 
 AppPowerModel::~AppPowerModel ()
@@ -469,6 +471,18 @@ AppPowerModel::GetEnergy (void) const
 }
 
 void
+AppPowerModel::IsIdle()
+{
+ //m_powerUpdateEvent.Cancel ();
+ if (m_currentState == 0){
+  m_cpupower = m_idlePowerW; 
+  m_temperatureModel->UpdateTemperature (m_cpupower);
+  Simulator::Schedule (m_powerUpdateInterval,&AppPowerModel::IsIdle,this);
+ }
+}
+
+
+void
 AppPowerModel::RunApp()
 {
   Time now = Simulator::Now ();
@@ -489,6 +503,7 @@ AppPowerModel::TerminateApp()
  //m_powerUpdateEvent.Cancel ();
  m_cpupower = m_idlePowerW;
  m_currentState = 0;
+ //SetIdle();
  m_performanceModel->SetThroughput(0);
  HandleAppTerminateEvent();
    NS_LOG_DEBUG ("AppPowerModel:Application terminated successfully!" << " at time = " << Simulator::Now ());

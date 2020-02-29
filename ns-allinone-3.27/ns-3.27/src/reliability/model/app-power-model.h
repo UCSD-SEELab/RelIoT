@@ -88,6 +88,12 @@ public:
   virtual void UpdatePower ();
 
   /**
+   * \brief Checks if CPU is idle, updates temperature.
+   *
+   */
+  virtual void IsIdle ();
+
+  /**
    * Starts the application
    */
   virtual void RunApp ();
