@@ -80,7 +80,7 @@ TemperatureSimpleModel::TemperatureSimpleModel ()
   NS_LOG_FUNCTION (this);
   m_lastUpdateTime = Seconds (0.0);
   m_avgTemp = 0;
-  m_temperatureCPU = 25.0;
+  m_temperatureCPU = 35;
 }
 
 TemperatureSimpleModel::~TemperatureSimpleModel ()
@@ -164,6 +164,9 @@ TemperatureSimpleModel::SetTenv (double Tenv)
 {
   NS_LOG_FUNCTION (this);
   m_Tenv = Tenv;
+  if(m_Tenv>=30){
+    m_A = 0.1014281;
+  }
 }
 
 double

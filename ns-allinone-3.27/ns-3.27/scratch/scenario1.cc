@@ -1174,7 +1174,7 @@ int main (int argc, char *argv[])
   std::string phyMode ("DsssRate1Mbps");
   //double rss = -80;  // -dBm , received signal strength
   bool verbose = false;
-  double simulationTime = 30.0;                        /* Simulation time in seconds. */
+  double simulationTime = 365.0;                        /* Simulation time in seconds. */
   double startTime = 1.0;
   bool flow_monitor = true;
   //LogComponentEnable ("OnOffApplication", LOG_LEVEL_ALL);
