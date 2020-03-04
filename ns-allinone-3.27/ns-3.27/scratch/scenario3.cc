@@ -1183,6 +1183,7 @@ int main (int argc, char *argv[])
   uint32_t packetSize = 1000; // bytes
   std::string dataRate = "150Kbps";                  /* Application layer datarate. */
   std::string dataRate3 = "250Kbps";
+  std::string dataRate4 = "5Kbps";
   uint32_t dataSize = 10000;   // bytes, for applications
   uint32_t infDataSize = 1000000000;   // bytes, for applications
 
@@ -1548,6 +1549,30 @@ int main (int argc, char *argv[])
           sinkApplications.Add (packetSinkHelper.Install (rpi0other.Get (index)));
     }
 
+//  sink = StaticCast<PacketSink> (sinkApplications.Get (0));
+//  sinkApplications.Start (Seconds (0.0));
+//  sinkApplications.Stop (Seconds (10.0));
+//  sourceApplications.Start (Seconds (startTime));
+//  sourceApplications.Stop (Seconds (10.0));
+//  Simulator::Schedule (Seconds (1.1), &CalculateThroughput);
+  /***************************************************************************/
+  /***************************************************************************/
+
+  // Setting applications RPi0(1) to RPi3(1)
+
+  auto ipv4 = rpi3Nodes.Get (0)->GetObject<Ipv4> ();
+  const auto address = ipv4->GetAddress (1, 0).GetLocal ();
+  InetSocketAddress sinkSocket (address, portNumber++);
+  OnOffHelper onOffHelper ("ns3::UdpSocketFactory", sinkSocket);
+  onOffHelper.SetAttribute ("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.10]"));
+  onOffHelper.SetAttribute ("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=0.90]"));
+  onOffHelper.SetAttribute ("DataRate", DataRateValue (DataRate (dataRate4)));
+  onOffHelper.SetAttribute ("PacketSize", UintegerValue (packetSize)); //bytes
+  sourceApplications.Add (onOffHelper.Install (rpi0Nodes.Get (0)));
+  PacketSinkHelper packetSinkHelper ("ns3::UdpSocketFactory", sinkSocket);
+  sinkApplications.Add (packetSinkHelper.Install (rpi3Nodes.Get (0)));
+
+
   sink = StaticCast<PacketSink> (sinkApplications.Get (0));
   sinkApplications.Start (Seconds (0.0));
 //  sinkApplications.Stop (Seconds (10.0));
@@ -1593,7 +1618,8 @@ int main (int argc, char *argv[])
       
       if ((t.sourceAddress == Ipv4Address("172.27.0.2") && t.destinationAddress == Ipv4Address("172.27.0.4"))
          || (t.sourceAddress == Ipv4Address("172.27.0.2") && t.destinationAddress == Ipv4Address("172.27.0.5"))
-         || (t.sourceAddress == Ipv4Address("172.27.0.2") && t.destinationAddress == Ipv4Address("172.27.0.6")))
+         || (t.sourceAddress == Ipv4Address("172.27.0.2") && t.destinationAddress == Ipv4Address("172.27.0.6"))
+         || (t.sourceAddress == Ipv4Address("172.27.0.3") && t.destinationAddress == Ipv4Address("172.27.0.1")))
         {
           std::cout << "Flow " << i->first << " (" << t.sourceAddress << " -> " << t.destinationAddress << ")\n";
           std::cout << "  Tx Packets: " << i->second.txPackets << "\n";
