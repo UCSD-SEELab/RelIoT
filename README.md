@@ -10,7 +10,7 @@ For a list of contributors see [AUTHORS](https://github.com/UCSD-SEELab/RelIoT/b
 Extended documentation
 ----------------------
 
-Extended documentation available at
+Extended documentation about implementation details, usage, and examples available at:
 
     /documentation/ReliabilityFramework_Documentation.pdf
  
